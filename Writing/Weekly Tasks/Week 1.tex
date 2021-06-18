@@ -1,0 +1,27 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{url}
+
+\DeclareMathOperator{\argmin}{\mathrm{argmin}}
+
+\title{Week 1 tasks}
+
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+	\item Implement an ``oracle'' class. For now this should be initialized with a function $f(x)$, and have a call method which takes as input two points $x,y$ and returns $+1$ if $f(y) - f(x) > 0$ and $-1$ if $f(y) - f(x) < 0$. We can expand this later to allow for a probability of being incorrect.
+	
+	\item Implement a comparison based version of the Stochastic Three Point (STP) method described in the paper \cite{bergou2020stochastic} (see Alg. 3.1 on pg.7). You will need to think about how to perform step 3 (finding the $\argmin$) using only a comparison oracle. 
+	
+	\item Test your Comparison-based STP (let's call it C-STP) on the two test functions in  {\tt benchmarkfunctions.py}. I think that C-STP is the simplest possible comparison-based optimization method. Thus, it will be a great benchmark for us moving forward.
+	
+	\item Have a look at some of the papers in the bibliography. Follow up on some of their citations, and hopefully find some new papers to add to the list.
+
+\end{enumerate}
+
+\bibliographystyle{alpha}
+\bibliography{../CBO_Bib.bib}
+\end{document}

@@ -1,0 +1,8 @@
+\begin{thebibliography}{BGR20}
+
+\bibitem[BGR20]{bergou2020stochastic}
+El~Houcine Bergou, Eduard Gorbunov, and Peter Richtarik.
+\newblock Stochastic three points method for unconstrained smooth minimization.
+\newblock {\em SIAM Journal on Optimization}, 30(4):2726--2749, 2020.
+
+\end{thebibliography}

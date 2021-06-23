@@ -10,9 +10,11 @@ PROBLEM 1.
 import numpy as np
 import pandas as pd
 import random
+import matplotlib.pyplot as plt
 
-from ExampleCode.benchmarkfunctions import SparseQuadric
-from ExampleCode.benchmarkfunctions import MaxK
+#from ExampleCode.benchmarkfunctions import SparseQuadric
+from benchmarkfunctions import SparseQuadric, MaxK
+#from ExampleCode.benchmarkfunctions import MaxK
 
 # suppose the function is something like f:R->R s.t. f(x) = 3x^2+2.
 # then the function would be like....
@@ -140,6 +142,16 @@ s_k_trans = np.array([s_k]).T
 # FUNCTION that implements Comparison - Based version of Stochastic Three Point method (STP).
 def stp(num, a_k, defined_func):
     list_of_xk = []
+    
+    ##################
+    ## DM: A good way to check if an optimization algorithm is working is to
+    ## ensure that the objective function is decreasing. (Of course in true 
+    ## comparison-based optimization we wouldn't have access to objective function 
+    ## values, but this is useful for debugging). Later we will talk 
+    ## about the rate at which it decreases.
+    ##################
+    
+    f_vals = []
     n = num
     count_same = 0
     for k in range(10000):
@@ -149,10 +161,23 @@ def stp(num, a_k, defined_func):
             print(x_k)
             # initial_x_k = x_k
             # print(x_k)
+            
+            ################
+            ## DM: I would handle the k=0 case (initialization) outside of
+            ## the loop.
+            ###############
 
         # print('x_k: ', x_k)
         list_of_xk.append(x_k)
         # print(len(list_of_xk))
+        
+        f_vals.append(defined_func(x_k))
+        
+         #########
+         ## DM: Added logging of f_vals
+         #########
+        
+        
         if k > 0:
             if list_of_xk[k].all() == list_of_xk[k - 1].all():
                 # print('same')
@@ -163,6 +188,11 @@ def stp(num, a_k, defined_func):
         # print('\n')
         # print(random_direction)
         s_k = np.zeros(n, int)
+        #####################
+        ## DM: Might be more robust to create a zero array of floats, instead
+        ## of ints.
+        #####################
+        
         s_k[random_direction] = 1
         # print(s_k)
         # s_k_trans = np.array([s_k]).T
@@ -172,15 +202,20 @@ def stp(num, a_k, defined_func):
         # break.
         x_plus = x_k + np.dot(a_k, s_k)
         # print('x+ : ', x_plus)
-        x_minus = x_k + np.dot(a_k, s_k)
+        x_minus = x_k - np.dot(a_k, s_k)
         # print('x- : ', x_minus)
+        
+        ######################
+        ## DM: a_k is a scalar right? Won't make much difference but we can 
+        ## just use a_k*s_k
+        ######################
 
         # compute comparisons using the Comparison Oracle.
         # compute 2 comparisons to determine the argmin.
         new_instance_1 = Oracle(defined_func)
         first_comparison = new_instance_1(x_k, x_plus)
         if first_comparison == -1:
-            # print('hey')
+            #print('hey')
             second_comparison = new_instance_1(x_plus, x_minus)
             if second_comparison == -1:
                 argmin = x_minus
@@ -215,7 +250,8 @@ def stp(num, a_k, defined_func):
     # once we reach the end of k's iterations, we want to return x_k.
     # print(count_same)
     # print(x_k)
-    return x_k
+
+    return x_k, f_vals
 
 
 #########################################################################
@@ -232,16 +268,31 @@ obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 
 # testing with SPARSE QUADRIC FUNCTION.
 param1 = n_def
-param2 = 0.1
-trial1_STP = stp(param1, param2, obj_func_1)
+#param2 = 0.1
+param2 = 1.0
+trial1_STP, f_vals = stp(param1, param2, obj_func_1)
 print(trial1_STP)
 '''
 [0.92863736 0.67880925 0.55654282 ... 0.24465763 0.75835699 0.41617807]
 '''
 
 print('---------')
+
+plt.plot(f_vals)
+plt.show()
+
+###############
+## DM: In optimization, use a log scale on the y-axis is usually more 
+## informative than a linear scale. This is because most good algorithms 
+## exhibit exponential convergence (weird convention: we call this linear 
+## convergence) for simple functions 
+###############
+
+plt.semilogy(f_vals)
+plt.show()
+
 # testing with MAXK FUNCTION.
-trial2_STP = stp(param1, param2, obj_func_2)
+trial2_STP, f_vals = stp(param1, param2, obj_func_2)
 print(trial2_STP)
 '''
 [0.63684335 0.01983142 0.82694289 ... 0.29871574 0.05529189 0.54062174]

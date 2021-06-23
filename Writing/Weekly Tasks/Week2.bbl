@@ -1,0 +1,10 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{GKK{\etalchar{+}}19}
+
+\bibitem[GKK{\etalchar{+}}19]{golovin2019gradientless}
+Daniel Golovin, John Karro, Greg Kochanski, Chansoo Lee, Xingyou Song, and
+  Qiuyi Zhang.
+\newblock Gradientless descent: High-dimensional zeroth-order optimization.
+\newblock {\em arXiv preprint arXiv:1911.06317}, 2019.
+
+\end{thebibliography}

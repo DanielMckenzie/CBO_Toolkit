@@ -9,6 +9,11 @@ Max-k-sum-squared
 import numpy as np
 import sys
 
+# TODO:
+# Code up a non-sparse quadric test function.
+# return np.dot(x,x)
+#
+
 class SparseQuadric(object):
     '''An implementation of the sparse quadric function.'''
     def __init__(self, n, s, noiseamp):

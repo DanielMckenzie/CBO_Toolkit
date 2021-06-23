@@ -192,6 +192,11 @@ def stp(num, a_k, defined_func):
         ## DM: Might be more robust to create a zero array of floats, instead
         ## of ints.
         #####################
+        ## DM: Try the following sampling distributions:
+        ## 1. Gaussian: s_k = np.random.randn(n,1)
+        ## 2. Uniform from sphere: s_k = np.random.randn(n,1) then s_k/ ||s_k||
+        ## 3. Rademacher: [s_k]_{i} = +1 or -1 with probability 50% 
+        ####################
         
         s_k[random_direction] = 1
         # print(s_k)
@@ -269,7 +274,7 @@ obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 # testing with SPARSE QUADRIC FUNCTION.
 param1 = n_def
 #param2 = 0.1
-param2 = 1.0
+param2 = 1.5
 trial1_STP, f_vals = stp(param1, param2, obj_func_1)
 print(trial1_STP)
 '''

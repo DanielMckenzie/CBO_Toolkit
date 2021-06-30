@@ -13,7 +13,7 @@ import random
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
-from benchmarkfunctions import SparseQuadric, MaxK
+from benchmarkfunctions import SparseQuadratic, MaxK
 
 # suppose the function is something like f:R->R s.t. f(x) = 3x^2+2.
 # then the function would be like....
@@ -336,7 +336,7 @@ s_exact = 200  # True sparsity.
 noise_amp = 0.001  # noise amplitude.
 # ---------
 # initialize objective functions.
-obj_func_1 = SparseQuadric(n_def, s_exact, noise_amp)
+obj_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 
 # testing with SPARSE QUADRIC FUNCTION.
@@ -439,7 +439,7 @@ n = 20000  # problem dimension
 s_exact = 200  # True sparsity
 noise_amp = 0.001  # noise amplitude
 # initialize objective function
-obj_func_1 = SparseQuadric(n, s_exact, noise_amp)
+obj_func_1 = SparseQuadratic(n, s_exact, noise_amp)
 obj_func_2 = MaxK(n, s_exact, noise_amp)
 '''
 

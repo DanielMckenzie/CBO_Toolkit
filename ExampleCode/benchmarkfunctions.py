@@ -13,7 +13,7 @@ import sys
 # return np.dot(x,x)
 
 
-class SparseQuadric(object):
+class SparseQuadratic(object):
     """An implementation of the sparse quadric function."""
 
     def __init__(self, n, s, noiseamp):
@@ -50,7 +50,12 @@ class MaxK(object):
 # noiseamp is the amplitude of noise. I think I should still take this, and multiply it to self.rng.randn().
 # then I still add it to f_no_noise as it accounts for noise.
 # so I guess the only difference is I don't multiply x[0:self.s] with x[0:self.s], I multiply all of x with all of x.
-class NonSparseQuadric(object):
+
+### DM: Looks correct to me! Minor note: I recently realized I was using the 
+### term "quadric" incorrectly. It refers to the graph of a quadratic function,
+### but the function itself is a quadratic. I've made the change below.
+
+class NonSparseQuadratic(object):
     """An implementation of the sparse quadric function."""
 
     def __init__(self, n, noiseamp):

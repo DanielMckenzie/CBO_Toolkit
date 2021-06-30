@@ -5,7 +5,7 @@
 import numpy as np
 from base import BaseOptimizer
 from oracle import Oracle
-from benchmarkfunctions import MaxK
+from benchmarkfunctions import SparseQuadratic, MaxK
 import pandas as pd
 import random
 import matplotlib.pyplot as plt
@@ -43,8 +43,10 @@ class STPOptimizer(BaseOptimizer):
         # ---------
         # 1. generate an initial x_0.
         if self.function_evals == 0:
-            x_k = np.random.rand(1, n)
-            x_k = x_k[0]
+            ### DM: Rewrote in a slightly more efficient way
+            x_k = np.random.randn(n)
+            # x_k = np.random.rand(1, n)
+            # x_k = x_k[0]
             # print('xk:')
             # print(x_k)
             self.list_of_sk.append(x_k)
@@ -63,18 +65,23 @@ class STPOptimizer(BaseOptimizer):
             # print(s_k)
         elif self.direction_vector_type == 1:
             # gaussian.
-            s_k = np.random.randn(n)
+            s_k = np.random.randn(n)/np.sqrt(n)
         elif self.direction_vector_type == 2:
             # uniform from sphere.
             s_k = np.random.randn(n)
             # formula: ||x_n|| = sqrt(x_n_1^2 + x_n_2^2 + ... + x_n_n^2).
             # let's calculate ||s_k||.
-            sum = 0
-            for elem in s_k:
-                elem_squared = elem * elem
-                sum += elem_squared
-            sum_sqrt = sum ** 0.5
-            s_k_norm = sum_sqrt
+            
+            ### DM: Easier:
+            s_k_norm = np.linalg.norm(s_k)
+            
+            ### This is a nice implementation of finding the norm though!
+            #sum = 0
+            #for elem in s_k:
+            #    elem_squared = elem * elem
+            #    sum += elem_squared
+            #sum_sqrt = sum ** 0.5
+            #s_k_norm = sum_sqrt
             # print('s_k norm: ', s_k_norm)
             s_k = s_k / s_k_norm
         elif self.direction_vector_type == 3:
@@ -82,18 +89,29 @@ class STPOptimizer(BaseOptimizer):
             s_k = []
             count_positive1 = 0
             count_negative1 = 0
-            for i in range(n):
-                rand_choice = random.choice([-1, 1])
-
-                if rand_choice == 1:
-                    count_positive1 += 1
-                else:
-                    count_negative1 += 1
-                # print(str(i) + ': ', rand_choice)
-                s_k.append(rand_choice)
-            # print('type sk: ', type(s_k))
+            ### DM: Easier:
+            s_k = 2*np.round(np.random.rand(n))-1
+            s_k = s_k/np.sqrt(n)
+            
+            ### It's interesting to think about why the above line of 
+            ### code indeed produces a Rademacher vector.
+            
+#            for i in range(n):
+#                rand_choice = random.choice([-1, 1])
+#
+#                if rand_choice == 1:
+#                    count_positive1 += 1
+#                else:
+#                    count_negative1 += 1
+#                # print(str(i) + ': ', rand_choice)
+#                s_k.append(rand_choice)
+#            # print('type sk: ', type(s_k))
         else:
             print('invalid direction vector type. please input an integer, from 0 to 3.')
+           ### Something I've been experimenting with lately is using the Python 
+           ### built in Error class
+           # raise ValueError('Vector type must be an integer from 0 to 3')
+           ### But this will terminate the function, so it may not be what we want.
             return 0
         # ---------
         # 3. generate x+, x-.
@@ -156,13 +174,14 @@ n = 20000  # problem dimension.
 s_exact = 200  # true sparsity.
 noiseamp = 0.001  # noise amplitude.
 # initialize objective function.
-obj_func = MaxK(n, s_exact, noiseamp)
+#obj_func = MaxK(n, s_exact, noiseamp)
+obj_func = SparseQuadratic(n, s_exact, noiseamp)
 # create an instance of STPOptimizer.
 # direction_vector_type = 0  # original.
 # direction_vector_type = 1  # gaussian.
 # direction_vector_type = 2  # uniform from sphere.
 direction_vector_type = 3  # rademacher.
-a_k = 0.1  # step-size.
+a_k = 0.5  # step-size.
 function_budget = 10000
 # stp instance.
 stp1 = STPOptimizer(direction_vector_type, n, a_k, obj_func, function_budget)

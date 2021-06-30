@@ -9,7 +9,7 @@ import numpy as np
 import pandas as pd
 import math
 import random
-from benchmarkfunctions import SparseQuadric, MaxK
+from benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 
 # let's write a function called GLD_algorithm().
@@ -90,7 +90,7 @@ s_exact = 200  # True sparsity.
 noise_amp = 0.001  # noise amplitude.
 # ---------
 # initialize objective functions.
-obj_func_1 = SparseQuadric(n_def, s_exact, noise_amp)
+obj_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 # obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 max_iterations = 10000
 x_0_ = np.random.rand(n_def)
@@ -106,7 +106,7 @@ answer = gld_1[0]
 print('solution: ', answer)
 func_vals = gld_1[1]
 
-plt.plot(func_vals)
+plt.semilogy(func_vals)
 plt.show()
 
 

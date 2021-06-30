@@ -1,0 +1,30 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{url}
+
+\DeclareMathOperator{\argmin}{\mathrm{argmin}}
+
+\title{Week 3 tasks}
+
+
+\begin{document}
+\maketitle
+
+\begin{enumerate}
+	\item Implement the Gradientless descent algorithm (GLD) as a class, like you did for STP.
+	
+	\item Compare the performance of GLD vs. STP on our two benchmark functions. As both are stochastic algorithms, we'll need to average over mutliple independent trials. When visualizing the results ({\em i.e.} function values vs. number of oracle queries) we want to plot both the mean and the standard deviation. This stackoverflow question: \url{https://stackoverflow.com/questions/51680298/plot-mean-and-standard-deviation-as-a-shaded-area-around-mean?noredirect=1&lq=1} (and links therein) should explain how to do this. \\
+	
+	\item Have a look at the file {\tt old\_ algorithms.py}. There is an implementation of the algorithm SignOPT (see Algorithm 1 in \cite{cheng2019sign}). It is in quite a different format though, so I'd like you to rewrite it as a class, as we've done for all our other algorithms. There is also an implementation of GLD in this file that I'd forgotten about. You may want to have a look at this too. Finally, there is an implemetation of the SCOBO algorithm \cite{cai2020scobo} in  {\tt old\_ algorithms.py}. Eventually we will want to implement this in our format, but this may be a task for another week. \\
+	
+	\item Continue to look through the literature for zeroth-order algorithms that could be made into comparison-based algorithms. \\
+	
+	\item  {\em (Longer-term)} There are a few recent papers explicitly dealing with comparison-based optimization. For example \cite{karabag2021smooth}. We should definitely look into these. \\
+	
+	\item {\em (Longer-term)} Crucial to this project will be developing a representative library of test functions. I think the best existing library for zeroth-order optimization is here: \url{https://github.com/numbbo/coco} but I have always found it tricky to use. Also, we will need to wrap all of these function within our Comparison Oracle function. \\
+\end{enumerate}
+
+\bibliographystyle{alpha}
+\bibliography{../CBO_Bib.bib}
+\end{document}

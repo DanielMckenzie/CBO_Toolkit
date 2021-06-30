@@ -1,0 +1,15 @@
+\newcommand{\etalchar}[1]{$^{#1}$}
+\begin{thebibliography}{CMYZ20}
+
+\bibitem[CMYZ20]{cai2020scobo}
+HanQin Cai, Daniel Mckenzie, Wotao Yin, and Zhenliang Zhang.
+\newblock Scobo: Sparsity-aware comparison oracle based optimization.
+\newblock {\em arXiv preprint arXiv:2010.02479}, 2020.
+
+\bibitem[CSC{\etalchar{+}}19]{cheng2019sign}
+Minhao Cheng, Simranjit Singh, Patrick~H Chen, Pin-Yu Chen, Sijia Liu, and
+  Cho-Jui Hsieh.
+\newblock Sign-opt: A query-efficient hard-label adversarial attack.
+\newblock In {\em International Conference on Learning Representations}, 2019.
+
+\end{thebibliography}

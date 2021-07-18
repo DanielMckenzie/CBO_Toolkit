@@ -162,6 +162,8 @@ class STPOptimizer(BaseOptimizer):
         if self.reachedFunctionBudget(self.function_budget, self.function_evals):
             # if budget is reached return parent.
             # solution, list of all function values, termination.
+            while len(self.f_vals) > (self.function_budget/2):
+                self.f_vals.pop()
             return x_k, self.f_vals, 'B'
         # return solution, list of all function values, termination (which will be False here).
         return x_k, self.f_vals, False
@@ -181,7 +183,7 @@ obj_func = SparseQuadratic(n, s_exact, noiseamp)
 # direction_vector_type = 1  # gaussian.
 # direction_vector_type = 2  # uniform from sphere.
 direction_vector_type = 3  # rademacher.
-a_k = 0.5  # step-size.
+a_k = 0.1  # step-size.
 function_budget = 10000
 # stp instance.
 stp1 = STPOptimizer(direction_vector_type, n, a_k, obj_func, function_budget)
@@ -195,10 +197,13 @@ while termination is False:
     print('current value: ', func_value[-1])
 # plot the decreasing function.
 plt.plot(func_value)
-plt.show()
+#plt.show()
 # log x-axis.
 plt.semilogy(func_value)
-plt.show()
+#plt.show()
+# ---------
+print('\n')
+print('number of function vals: ', len(func_value))
 # ---------
 # OBSERVATIONS:
 # Works very well with direction_vector_types = 0 (original) & 2 (uniform from sphere).

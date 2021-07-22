@@ -139,7 +139,7 @@ noise_amp = 0.001  # noise amplitude.
 # initialize objective function.
 model_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 model_func_2 = MaxK(n_def, s_exact, noise_amp)
-function_budget_ = 10000
+function_budget_ = 1000
 m_ = 100
 d_ = 20000
 x_0_ = np.zeros((d_, 1))

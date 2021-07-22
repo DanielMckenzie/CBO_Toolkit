@@ -140,18 +140,18 @@ def GLD_algorithm(defined_func, max_iter, x_0, R, r):
         # x_t = x_0[t]
         v_list = [x_t]
         # D = np.random.randn(n)/np.sqrt(n)
-        D = np.random.randn(n) / n
-        # print(D)
+        # D = np.random.randn(n) / n
         # in the range of K (max. / min. search radius).
         for k in range(int(K)):
             # calculate r_k.
             r_k = 2 ** -k
             r_k = r_k * R
             # print('r_k: ', r_k)
-            r_k_D = np.dot(r_k, D)
+            # r_k_D = np.dot(r_k, D)
+            v_k = (r_k/n)*np.random.randn(n)
             # sample v_k from r_k_D.
-            random_dir = random.randint(0, n - 1)
-            v_k = r_k_D[random_dir]
+            #random_dir = random.randint(0, n - 1)
+            #v_k = r_k_D[random_dir]
             # print('vk: ', v_k)
             next_el = x_t + v_k
             # add each x_t + v_k to a list for all k in K.
@@ -206,7 +206,7 @@ noise_amp = 0.001  # noise amplitude.
 # initialize objective functions.
 obj_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 # obj_func_2 = MaxK(n_def, s_exact, noise_amp)
-max_iterations = 10000
+max_iterations = 2000
 x_0_ = np.random.rand(n_def)
 print('x0: ')
 print(x_0_)

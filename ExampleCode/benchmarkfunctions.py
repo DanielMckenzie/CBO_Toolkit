@@ -23,6 +23,8 @@ class SparseQuadratic(object):
         self.rng = np.random.RandomState()
 
     def __call__(self, x):
+        if not len(x) == self.dim:
+            raise ValueError('Error! Dimension of input must be'+str(self.dim)) 
         f_no_noise = np.dot(x[0:self.s], x[0:self.s])
         return f_no_noise + self.noiseamp * self.rng.randn()
 

@@ -9,13 +9,13 @@ Week 3 - TASK #3.
 CHEETAH is not working for me for some reason. :(
 '''
 # from cheetah.mujocomodel import MujocoModel
-from ExampleCode.base import BaseOptimizer
-from ExampleCode.oracle import Oracle_2
+from base import BaseOptimizer
+from oracle import Oracle_2
 import numpy as np
 import pandas as pd
 import math
 import random
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
+from benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 import gurobipy as gp
 
@@ -99,7 +99,8 @@ class SignOPTOptimizer(BaseOptimizer):
             temp = np.random.rand(1, self.d)
             Z[j, :] = temp / np.linalg.norm(temp) # normalize.
         g_hat = self.signOPT_grad_estimate(x, Z, self.r * 1.01 ** (-1 * self.function_evals))
-        x = x + self.alpha * 1.001 ** (-1 * (self.function_evals - 1)) * g_hat
+        # x = x + self.alpha * 1.001 ** (-1 * (self.function_evals - 1)) * g_hat
+        x = x - self.alpha*g_hat
         self.list_of_x.append(x)
         if show_runs:
             # self.f_vals.append(self.model.render(x))
@@ -138,7 +139,7 @@ noise_amp = 0.001  # noise amplitude.
 # initialize objective function.
 model_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 model_func_2 = MaxK(n_def, s_exact, noise_amp)
-function_budget_ = 1000
+function_budget_ = 10000
 m_ = 100
 d_ = 20000
 x_0_ = np.zeros((d_, 1))

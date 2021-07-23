@@ -148,7 +148,7 @@ def GLD_algorithm(defined_func, max_iter, x_0, R, r):
             r_k = r_k * R
             # print('r_k: ', r_k)
             # r_k_D = np.dot(r_k, D)
-            v_k = (r_k/n)*np.random.randn(n)
+            v_k = (r_k/np.sqrt(n))*np.random.randn(n)
             # sample v_k from r_k_D.
             #random_dir = random.randint(0, n - 1)
             #v_k = r_k_D[random_dir]

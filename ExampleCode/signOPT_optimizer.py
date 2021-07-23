@@ -72,7 +72,7 @@ class SignOPTOptimizer(BaseOptimizer):
         print(type(g_hat))
         for i in range(self.m):
             new_instance_1 = Oracle_2(self.model)
-            first_comparison = new_instance_1(x_in, x_in * r * Z[i, :])
+            first_comparison = new_instance_1(x_in, x_in + r * Z[i, :])
             print(first_comparison)
             # increment the number of function evaluations by 1.
             self.function_evals += 1
@@ -98,7 +98,7 @@ class SignOPTOptimizer(BaseOptimizer):
         for j in range(0, self.m):
             temp = np.random.rand(1, self.d)
             Z[j, :] = temp / np.linalg.norm(temp) # normalize.
-        g_hat = self.signOPT_grad_estimate(x, Z, self.r * 1.01 ** (-1 * self.function_evals))
+        g_hat = self.signOPT_grad_estimate(x, Z, self.r)
         # x = x + self.alpha * 1.001 ** (-1 * (self.function_evals - 1)) * g_hat
         x = x - self.alpha*g_hat
         self.list_of_x.append(x)
@@ -108,7 +108,7 @@ class SignOPTOptimizer(BaseOptimizer):
         else:
             self.f_vals.append(self.model(x))
         print('current rewards at step ' + str(self.function_evals) + ': ' + str(self.f_vals[-1]))
-        print('step_size:', self.alpha * 1.001 ** (-1 * (self.function_evals - 1)))
+        # print('step_size:', self.alpha * 1.001 ** (-1 * (self.function_evals - 1)))
         print('gradient norm:', np.linalg.norm(g_hat))
         #########
         '''
@@ -139,10 +139,11 @@ noise_amp = 0.001  # noise amplitude.
 # initialize objective function.
 model_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
 model_func_2 = MaxK(n_def, s_exact, noise_amp)
-function_budget_ = 1000
+function_budget_ = int(1e4)
 m_ = 100
 d_ = 20000
-x_0_ = np.zeros((d_, 1))
+#x_0_ = np.zeros((d_, 1))
+x_0_ = 10*np.random.randn(d_,1)
 step_size = .2
 r_ = 0.1
 show_runs = True

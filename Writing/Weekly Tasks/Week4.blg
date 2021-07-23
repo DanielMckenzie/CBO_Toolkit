@@ -1,0 +1,53 @@
+This is BibTeX, Version 0.99d (TeX Live 2015)
+Capacity: max_strings=35307, hash_size=35307, hash_prime=30011
+The top-level auxiliary file: Week4.aux
+The style file: alpha.bst
+Database file #1: ../CBO_Bib.bib.bib
+Repeated entry---line 62 of file ../CBO_Bib.bib.bib
+ : @inproceedings{karabag2021smooth
+ :                                 ,
+I'm skipping whatever remains of this entry
+Warning--I didn't find a database entry for ""
+Warning--can't use both volume and number fields in karabag2021smooth
+You've used 2 entries,
+            2543 wiz_defined-function locations,
+            572 strings with 4797 characters,
+and the built_in function-call counts, 1276 in all, are:
+= -- 134
+> -- 50
+< -- 3
++ -- 18
+- -- 18
+* -- 87
+:= -- 186
+add.period$ -- 7
+call.type$ -- 2
+change.case$ -- 14
+chr.to.int$ -- 2
+cite$ -- 3
+duplicate$ -- 56
+empty$ -- 95
+format.name$ -- 20
+if$ -- 283
+int.to.chr$ -- 1
+int.to.str$ -- 0
+missing$ -- 2
+newline$ -- 13
+num.names$ -- 6
+pop$ -- 16
+preamble$ -- 1
+purify$ -- 16
+quote$ -- 0
+skip$ -- 56
+stack$ -- 0
+substring$ -- 94
+swap$ -- 28
+text.length$ -- 3
+text.prefix$ -- 0
+top$ -- 0
+type$ -- 16
+warning$ -- 1
+while$ -- 12
+width$ -- 3
+write$ -- 30
+(There was 1 error message)

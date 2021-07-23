@@ -1,0 +1,15 @@
+\begin{thebibliography}{SKM21}
+
+\bibitem[KNT21]{karabag2021smooth}
+Mustafa~O Karabag, Cyrus Neary, and Ufuk Topcu.
+\newblock Smooth convex optimization using sub-zeroth-order oracles.
+\newblock In {\em Proceedings of the AAAI Conference on Artificial
+  Intelligence}, volume~35, pages 3815--3822, 2021.
+
+\bibitem[SKM21]{saha2021dueling}
+Aadirupa Saha, Tomer Koren, and Yishay Mansour.
+\newblock Dueling convex optimization.
+\newblock In {\em International Conference on Machine Learning}, pages
+  9245--9254. PMLR, 2021.
+
+\end{thebibliography}

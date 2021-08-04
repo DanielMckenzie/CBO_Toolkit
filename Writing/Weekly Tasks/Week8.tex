@@ -1,0 +1,31 @@
+\documentclass[12pt]{article}
+
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{url}
+\usepackage{hyperref}
+
+\DeclareMathOperator{\argmin}{\mathrm{argmin}}
+
+\title{Week 6 tasks}
+
+
+\begin{document}
+\maketitle
+\begin{enumerate}
+
+	\item Install and familiarize yourself with the \href{https://github.com/numbbo/coco}{COCO} testing suite. It's a powerful, comprensive piece of software for benchmarking and comparing black-box optimizers. Eventually, we'll use this for benchmarking our comparison-based methods.
+	
+	\item COCO is great, but it is also fairly inflexible. It is designed for zeroth-order ({\em i.e.} algorithms are given $f(x)$) but we want to use it for comparison based ({\em i.e.} algorithms are given only the output of a comparison between $f(x)$ and $f(y)$, but not the actual values $f(x)$ or $f(y)$). So, I think the easiest thing to do will be to build a wrapper that goes around any optimization algorithm. This wrapper will:
+	\begin{enumerate}
+		\item Receive two trial points $x,y$ from the algorithm $\mathcal{A}$.
+		\item Give $x,y$ to COCO, and receive $f(x),f(y)$.
+		\item Perform a (possibly noisy comparison) $\mathcal{C}_{f}(x,y)$.
+		\item Return $\mathcal{C}_{f}(x,y)$ (which is either $+1$ or $-1$) to $\mathcal{A}$.
+	\end{enumerate} 
+	
+	\item Have a look at the \href{https://github.com/CMA-ES/pycma}{CMA-ES algorithm}. It is a good zeroth-order algorithm which technically only uses comparisons. The code is good, and well optimized, so this will be a really strong benchmark to compare against. 
+	
+	\item Have a look at some of the talks within this \href{https://www.icml-hill.com/}{workshop}. 
+\end{enumerate}
+
+\end{document}

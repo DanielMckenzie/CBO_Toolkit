@@ -118,18 +118,36 @@ class Oracle_2:
             else:
                 self.count_equal += 1
                 self.list_of_outputs.append(0)
-            # returns....
-            if self.count_minus > 1:
-                return -1
-            elif self.count_plus > 1:
-                return 1
-            elif self.count_equal > 1:
-                return 0
-            else:
-                return None
+        print('\n')
+        print('+: ', self.count_plus)
+        print('-: ', self.count_minus)
+        print('*: ', self.count_equal)
+        print('\n')
+        # returns....
+        if self.count_minus > 1:
+            return -1
+        elif self.count_plus > 1:
+            return 1
+        elif self.count_equal > 1:
+            return 0
+        else:
+            return None
 
 
             # return 0
+
+instance_2 = Oracle_2(opt_function)
+# difference does not fall within margin of error (1).
+# output should be -1.
+comparison_oracle_3 = instance_2(9, 4, 1)
+print('3: ', comparison_oracle_3)
+instance_3 = Oracle_2(opt_function)
+# difference falls within margin of error (10).
+# output should be 0.
+comparison_oracle_4 = instance_3(4, 9, 10)
+print('4: ', comparison_oracle_4)
+
+
 
 #########################################################################
 '''

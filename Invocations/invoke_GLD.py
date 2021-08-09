@@ -1,6 +1,7 @@
 # invokes the GLD algorithm class.
 
 from Algorithms.gld_optimizer import GLDOptimizer
+from Algorithms.gld_optimizer import GLDOptimizer
 from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 import numpy as np

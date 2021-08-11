@@ -25,8 +25,10 @@ noredirect=1&lq=1 (and links therein) should explain how to do this.
 import random
 import numpy as np
 from matplotlib import pyplot as plt
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK, NonSparseQuadratic
 
+import sys
+sys.path.append('..')
+from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK, NonSparseQuadratic
 from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.stp_optimizer import STPOptimizer
 
@@ -39,7 +41,7 @@ from Algorithms.stp_optimizer import STPOptimizer
 n = 20000  # problem dimension.
 s_exact = 200  # true sparsity.
 noiseamp = 0.001  # noise amplitude.
-function_budget = 20000
+function_budget = 200
 # function_budget = 1000
 
 stp_func_list = []
@@ -157,15 +159,17 @@ def run_SignOPT_multiple_times(number_of_runs):
         run SignOPT.
         '''
         print('sample invoke.')
-        n_def = 2000
-        s_exact_1 = 200
-        noise_amp = 0.001
-        func_1 = SparseQuadratic(n_def, s_exact_1, noise_amp)
-        func_2 = MaxK(n_def, s_exact_1, noise_amp)
+        #n_def = 2000
+        #s_exact_1 = 200
+        #noise_amp = 0.001
+        ## DM : I think this was the error. The problem size here is not the 
+        ## same as the others.
+        func_1 = SparseQuadratic(n, s_exact, noiseamp)
+        func_2 = MaxK(n, s_exact, noiseamp)
         func_3 = NonSparseQuadratic(n, noiseamp)
         function_budget_1 = int(1e5)
         m = 100
-        x0 = np.random.randn(n_def)
+        x0 = np.random.randn(n)
         step_size = 0.2
         r = 0.1
         # max_iters = int(2e4)

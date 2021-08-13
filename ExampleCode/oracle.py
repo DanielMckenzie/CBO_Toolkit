@@ -39,10 +39,11 @@ class Oracle:
     #   returns +1 if f(y)-f(x) > 0.
     #   returns -1 if f(y)-f(x) < 0.
     def __call__(self, x, y):
-        if self.f_x(y) - self.f_x(x) < 0:
+        if self.f_x(y) - self.f_x(x) <= 0:
             # print(-1)
             return -1
-        elif self.f_x(y) - self.f_x(x) > 0:
+        else: #elif self.f_x(y) - self.f_x(x) > 0:
+        ## It seems our old version of oracle could (very rarely) return None
             # print(1)
             return 1
 

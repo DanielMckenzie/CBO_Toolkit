@@ -1,8 +1,10 @@
 # invokes the GLD algorithm class.
 
+import sys
+sys.path.append('..')
 from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.gld_optimizer import GLDOptimizer
-from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
+from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK, NonSparseQuadratic
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
@@ -15,6 +17,7 @@ s_exact = 200  # True sparsity.
 noise_amp = 0.001  # noise amplitude.
 # initialize objective function.
 obj_func_1 = SparseQuadratic(n_def, s_exact, noise_amp)
+obj_func_1 = NonSparseQuadratic(n_def, noise_amp)
 obj_func_2 = MaxK(n_def, s_exact, noise_amp)
 max_function_evals = 10000
 x_0_ = np.random.rand(n_def)
@@ -32,7 +35,7 @@ while termination is False:
     # optimization step.
     solution, func_value, termination = stp1.step()
     # print('step')
-    print('current value: ', func_value[-1])
+    print('current value: ', func_value)
 # print the solution.
 print('\n')
 print('solution: ', solution)

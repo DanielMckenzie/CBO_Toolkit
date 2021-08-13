@@ -49,8 +49,8 @@ class SignOPT(BaseOptimizer):
             g_hat += comparison*Z[i,:]
         
         g_hat = g_hat/ self.m
-        if self.debug_status:
-            print(['Gradient is ', g_hat])
+        # if self.debug_status:
+        #    print(['Gradient is ', g_hat])
         
         return g_hat
     
@@ -69,6 +69,7 @@ class SignOPT(BaseOptimizer):
         g_hat = self.signOPT_grad_estimate(Z, self.x)
         self.x -= self.step_size*g_hat
         self.x_vals.append(self.x)
+        
         if self._function is not None:
             self.f_vals.append(self._function(self.x))
             
@@ -76,14 +77,8 @@ class SignOPT(BaseOptimizer):
             # if budget is reached return current iterate.
             # solution, list of all function values, termination.
             if self._function is not None:
-                return self.x, self.f_vals, 'B'
+                return self.x, self.f_vals[-1], 'B'
             else:
                 return self.x, None, 'B'
-        
-        
-    
-    
             
-        
-        
-
+        return self.x, self.f_vals[-1], False

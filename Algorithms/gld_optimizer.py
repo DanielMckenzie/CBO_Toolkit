@@ -39,6 +39,9 @@ class GLDOptimizer(BaseOptimizer):
         self.function_budget = function_budget
         self.f_vals = []
         self.list_of_xt = []
+        
+        ## need to add the initial value to f_vals
+        self.f_vals.append(self.defined_func(x_0))
 
         K = math.log(self.R / self.r, 10)
         self.K = K
@@ -141,9 +144,9 @@ class GLDOptimizer(BaseOptimizer):
             # solution, list of all function values, termination.
             while len(self.f_vals) > (self.function_budget/2):
                 self.f_vals.pop()
-            return x_t, self.f_vals, 'B'
+            return x_t, self.f_vals[-1], 'B'
         # return solution, list of all function values, termination (which will be False here).
-        return x_t, self.f_vals, False
+        return x_t, self.f_vals[-1], False
 
 
 '''

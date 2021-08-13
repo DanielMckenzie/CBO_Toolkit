@@ -1,4 +1,6 @@
 # invokes the STP algorithm class.
+import sys
+sys.path.append('..')
 from Algorithms.stp_optimizer import STPOptimizer
 from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
@@ -19,7 +21,7 @@ obj_func = SparseQuadratic(n, s_exact, noiseamp)
 # direction_vector_type = 2  # uniform from sphere.
 direction_vector_type = 3  # rademacher.
 a_k = 0.1  # step-size.
-function_budget = 10000
+function_budget = 100
 # initial x_0.
 x_0 = np.random.randn(n)
 # stp instance.

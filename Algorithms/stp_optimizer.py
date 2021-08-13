@@ -218,9 +218,9 @@ class STPOptimizer(BaseOptimizer):
             # solution, list of all function values, termination.
             while len(self.f_vals) > (self.function_budget/2):
                 self.f_vals.pop()
-            return x_k, self.f_vals, 'B'
+            return x_k, self.f_vals[-1], 'B'
         # return solution, list of all function values, termination (which will be False here).
-        return x_k, self.f_vals, False
+        return x_k, self.f_vals[-1], False
 
 
 """

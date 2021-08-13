@@ -8,6 +8,8 @@ Created on Thu Jul 22 11:51:58 2021
 @author: danielmckenzie
 """
 
+import sys
+sys.path.append('..')
 from Algorithms.SignOPT2 import SignOPT
 import numpy as np
 from ExampleCode.oracle import Oracle
@@ -25,7 +27,7 @@ x0 = np.random.randn(n_def)
 step_size = 0.2
 r = 0.1
 # max_iters = int(2e4)
-max_iters = int(10000)
+max_iters = int(1000)
 
 # Define the comparison oracle
 oracle = Oracle(func)

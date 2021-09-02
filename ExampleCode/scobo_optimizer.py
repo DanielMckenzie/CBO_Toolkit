@@ -443,15 +443,17 @@ from gurobipy import GRB, quicksum
 from utils import random_sampling_directions
 
 class SCOBOoptimizer(BaseOptimizer):
-    def __init__(self, oracle, step_size, x0, r, m, objfunc = None):
+    def __init__(self, oracle, step_size, query_budget, x0, r, m, s, objfunc = None):
         super().__init__()
         
         self.oracle = oracle
         self.num_queries = 0
         self.step_size = step_size
+        self.query_budget = query_budget
         self.x = x0
         self.r = r
         self.m = m
+        self.s = s
         self.d = len(x0)
         self.objfunc = objfunc
         if self.objfunc is not None:
@@ -478,7 +480,7 @@ class SCOBOoptimizer(BaseOptimizer):
         c = list(np.concatenate((c1, -c1)))
 
         model.setObjective(quicksum(c[i] * x[i] for i in range(0, 2 * self.d)), GRB.MAXIMIZE)
-        model.addConstr(quicksum(x) <= np.sqrt(s), "ell_1")  # sum_i x_i <=1
+        model.addConstr(quicksum(x) <= np.sqrt(self.s), "ell_1")  # sum_i x_i <=1
         model.addConstr(
             quicksum(x[i] * x[i] for i in range(0, 2 * self.d)) - 2 * quicksum(x[i] * x[self.d + i] for i in range(0, self.d)) <= 1,
             "ell_2")  # sum_i x_i^2 <= 1
@@ -513,14 +515,25 @@ class SCOBOoptimizer(BaseOptimizer):
     # will input it when I create an instance of this class and then call the step function for the # of iterations.
     def step(self):
         g_hat = self.GradientEstimator(self.x)
+        self.num_queries += self.m
         self.x = self.x - self.step_size * g_hat
        
-        if self.objfunc is not None:
-            tempval = self.objfunc(self.x)
-            self.function_vals.append(temp)
-            return temp
+        if self.reachedFunctionBudget(self.query_budget, self.num_queries):
+            # if budget is reached terminate.
+            if self.objfunc is not None:
+                tempval = self.objfunc(self.x)
+                self.function_vals.append(tempval)
+                return tempval, 'B'
+            else:
+                return None, 'B'
         else:
-            return None
+            if self.objfunc is not None:
+                tempval = self.objfunc(self.x)
+                self.function_vals.append(tempval)
+                return tempval, None
+            else:
+                return None, None
+           
 
        
 # _____________________________________________

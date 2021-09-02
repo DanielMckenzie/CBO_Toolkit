@@ -14,25 +14,25 @@ from benchmarkfunctions import SparseQuadratic, MaxK
 
 # Defining the function
 n_def = 2000
-s_exact = 200
+s_exact = 20
 noise_amp = 0.001
 func = SparseQuadratic(n_def, s_exact, noise_amp)
-function_budget = int(1e5)
-m = 100
+query_budget = int(1e5)
+m = 100  # Should always be larger than s_exact
 x0 = 100*np.random.randn(n_def)
-step_size = 0.2
+step_size = 0.5
 r = 0.1
-max_iters = int(2e4)
+max_iters = int(2e2)
 
 # Define the comparison oracle
 oracle = Oracle(func)
 
-Opt = SCOBOoptimizer(oracle, step_size, x0, r, m, objfunc=func)
+Opt = SCOBOoptimizer(oracle, step_size, query_budget, x0, r, m, s_exact, objfunc=func)
 
 for i in range(max_iters):
     print(i)
     err = Opt.step()
     print(err)
 
-plt.semilogy(Opt.f_vals)
+plt.semilogy(Opt.function_vals)
 plt.show()

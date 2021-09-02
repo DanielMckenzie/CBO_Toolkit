@@ -70,6 +70,7 @@ INPUTS....
 '''
 # OUTPUT: matrix whose rows are random sampling directions.
 
+
 def random_sampling_directions(number_of_rows, length_of_row, type_of_distribution):
     # original.
     if type_of_distribution == 'original':
@@ -145,8 +146,8 @@ def random_sampling_directions(number_of_rows, length_of_row, type_of_distributi
 """
 util #2.
 """
-from ExampleCode.oracle import Oracle, opt_function
-from ExampleCode.benchmarkfunctions import SparseQuadratic
+#from ExampleCode.oracle import Oracle, opt_function
+# from ExampleCode.benchmarkfunctions import SparseQuadratic
 # in this util, we will write a function that uses comparison oracle to determine the best point among 3 or more.
 # this is used in GLD and STP.
 #   STP compares 3, specifically.
@@ -187,22 +188,22 @@ def multiple_comparisons_oracle(v_list, objective_function):
 
 # ---------
 # test.
-n_def = 20000  # problem dimension.
-s_exact = 200  # True sparsity.
-noise_amp = 0.001  # noise amplitude.
-# initialize objective function.
-objective_func = SparseQuadratic(n_def, s_exact, noise_amp)
-x = np.random.randn(n_def)
-y = np.random.randn(n_def)
-z = np.random.randn(n_def)
-w = np.random.randn(n_def)
-argmin, function_evaluations = multiple_comparisons_oracle([x, y, z, w], objective_func)
-# argmin = argmin[0]
-print('length: ', len(argmin))
-print('\n')
-print('argmin: ', argmin)
-print('func evals: ', function_evaluations)
-# seems to work well.
+#n_def = 20000  # problem dimension.
+#s_exact = 200  # True sparsity.
+#noise_amp = 0.001  # noise amplitude.
+## initialize objective function.
+#objective_func = SparseQuadratic(n_def, s_exact, noise_amp)
+#x = np.random.randn(n_def)
+#y = np.random.randn(n_def)
+#z = np.random.randn(n_def)
+#w = np.random.randn(n_def)
+#argmin, function_evaluations = multiple_comparisons_oracle([x, y, z, w], objective_func)
+## argmin = argmin[0]
+#print('length: ', len(argmin))
+#print('\n')
+#print('argmin: ', argmin)
+#print('func evals: ', function_evaluations)
+## seems to work well.
 # ---------
 # tested on GLD & STP - works for both.
 # implemented in both algorithms.

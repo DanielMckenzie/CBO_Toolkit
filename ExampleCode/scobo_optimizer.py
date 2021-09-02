@@ -434,281 +434,95 @@ Example of Class implementation....
 '''
 SCOBO implemented as a class.
 '''
-from ExampleCode.base import BaseOptimizer
+from base import BaseOptimizer
 import numpy as np
 import matplotlib.pyplot as plt
 import gurobipy as gp
 import random
 from gurobipy import GRB, quicksum
+from utils import random_sampling_directions
 
 class SCOBOoptimizer(BaseOptimizer):
-    def __init__(self, num_iterations,default_step_size,x0,r,kappa,delta_0,mu,m,d,s,line_search,warm_started):
+    def __init__(self, oracle, step_size, x0, r, m, objfunc = None):
         super().__init__()
-
-        self.function_evals = 0
-        self.function_vals = []
-        self.function_budget = num_iterations
-        self.default_step_size = default_step_size
-        self.x0 = x0
-        self.r = r
-        self.kappa = kappa
-        self.delta_0 = delta_0
-        self.mu = mu
-        self.m = m
-        self.d = d
-        self.s = s
-        self.line_search = line_search
-        self.warm_started = warm_started
-
-        # whatever's in the original SCOBO class that isn't in the loop....
-        regret = np.zeros((self.function_budget, 1))
-        self.regret = regret
-        tau_vec = np.zeros((self.function_budget, 1))
-        self.tau_vec = tau_vec
-        linesearch_queries = np.zeros(self.function_budget)
-        self.linesearch_queries = linesearch_queries
-        x = np.squeeze(self.x0)
-        self.x = x
-
-        # start with default step size when using line search
-        step_size = default_step_size
+        
+        self.oracle = oracle
+        self.num_queries = 0
         self.step_size = step_size
+        self.x = x0
+        self.r = r
+        self.m = m
+        self.d = len(x0)
+        self.objfunc = objfunc
+        if self.objfunc is not None:
+            self.function_vals = []
+            
+        # Initialize search directions Z
+        self.Z = random_sampling_directions(self.m, self.d, 'rademacher')
 
-        if self.line_search:
-            less_than_default_vec = np.zeros((self.function_budget, 1))
-            self.less_than_default_vec = less_than_default_vec
-
-    def SetQ(self, d_, s):
-        """
-        Setup the global Q for quadratic oracle, so we don't have to re-create Q every query
-        Run this function before we run any function call that makes QuadraticOracle queries
-        May 25th 2020
-        """
-        global Q
-        Diagonal = np.zeros(d_)
-        for i in range(0, s):
-            p = 0.5
-            # Diagonal[i]= (i+1)**(-1.0/p)
-            Diagonal[i] = 1
-        Q = np.diag(Diagonal)
-
-    def object_fcn(self, x_):
-        return np.dot(np.dot(x_.T, Q), x_)
-
-    def QuadraticOracle(self, x, y, kappa, mu, delta_0):
-        '''Implements comparison oracle for sparse quadratic
-        In noiseless case, return 1 if f(x)<f(y); otherwise return -1
-        function f(x) = x^TQx
-        May 25th 2020'''
-        self.function_evals += 1
-        # Diagonal = np.concatenate((np.ones(s),np.zeros(d-s)))
-        # Q = np.diag(Diagonal)
-        # fx = np.dot(np.dot(x.T,Q),x)
-        # fy = np.dot(np.dot(y.T,Q),y)
-        fx = self.object_fcn(x)
-        fy = self.object_fcn(y)
-        f_diff = np.squeeze(fy - fx)
-        if f_diff == 0:
-            f_diff = (random.randrange(2) - 0.5) / 50
-        prob = 0.5 + np.minimum(mu * np.absolute(f_diff) ** (kappa - 1.0), delta_0)  # Probability of bit-flip
-        mask = 2 * np.random.binomial(1, prob) - 1
-        res = np.squeeze(mask * np.sign(f_diff))
-        if mask == 1:
-            bit_flipped = 0
-        else:
-            bit_flipped = 1
-        return res, bit_flipped
-
-    def Solve1BitCS(self, y, Z, m, d, s):
+    def Solve1BitCS(self, y):
         """
         This function creates a quadratic programming model, calls Gurobi
         and solves the 1 bit CS subproblem. This function can be replaced with
         any suitable function that calls a convex optimization package.
         =========== INPUTS ==============
         y ........... length d vector of one-bit measurements
-        Z ........... m-by-d sensing matrix
-        m ........... number of measurements
-        d ........... dimension of problem
-        s ........... sparsity level
-
+        
         =========== OUTPUTS =============
         x_hat ....... Solution. Note that \|x_hat\|_2 = 1
         """
 
         model = gp.Model("1BitRecovery")
-        x = model.addVars(2 * d, vtype=GRB.CONTINUOUS)
-        c1 = np.dot(np.transpose(y), Z)
+        x = model.addVars(2 * self.d, vtype=GRB.CONTINUOUS)
+        c1 = np.dot(np.transpose(y), self.Z)
         c = list(np.concatenate((c1, -c1)))
 
-        model.setObjective(quicksum(c[i] * x[i] for i in range(0, 2 * d)), GRB.MAXIMIZE)
+        model.setObjective(quicksum(c[i] * x[i] for i in range(0, 2 * self.d)), GRB.MAXIMIZE)
         model.addConstr(quicksum(x) <= np.sqrt(s), "ell_1")  # sum_i x_i <=1
         model.addConstr(
-            quicksum(x[i] * x[i] for i in range(0, 2 * d)) - 2 * quicksum(x[i] * x[d + i] for i in range(0, d)) <= 1,
+            quicksum(x[i] * x[i] for i in range(0, 2 * self.d)) - 2 * quicksum(x[i] * x[self.d + i] for i in range(0, self.d)) <= 1,
             "ell_2")  # sum_i x_i^2 <= 1
-        model.addConstrs(x[i] >= 0 for i in range(0, 2 * d))
+        model.addConstrs(x[i] >= 0 for i in range(0, 2 * self.d))
         model.Params.OUTPUTFLAG = 0
 
         model.optimize()
         TempSol = model.getAttr('x')
-        x_hat = np.array(TempSol[0:d] - np.array(TempSol[d:2 * d]))
+        x_hat = np.array(TempSol[0:self.d] - np.array(TempSol[self.d:2 * self.d]))
         return x_hat
 
-    def GradientEstimator(self, x_in, Z, r, kappa, delta_0, mu, m, d, s):
+    def GradientEstimator(self, x_in):
         '''This function estimates the gradient vector from m Comparison
         oracle queries, using 1 bit compressed sensing and Gurobi
         ================ INPUTS ======================
         Z ......... An m-by-d matrix with rows z_i uniformly sampled from unit sphere
         x_in ................. Any point in R^d
-        r ................ Sampling radius.
-        kappa,delta_0, mu..... Comparison oracle parameters.
-        m ..................... number of measurements.
-        d ..................... dimension of problem
-        s ..................... sparsity
-
+        
         ================ OUTPUTS ======================
         g_hat ........ approximation to g/||g||
-        tau .......... fraction of bit-flips/ incorrect one-bit measurements.
-        y ............ vector of measurements
-
         23rd May 2020
         '''
-        y = np.zeros(m)
-        tau = 0
-        for i in range(0, m):
-            x_temp = Z[i, :]
-            y[i], bit_flipped = self.QuadraticOracle(x_in, x_in + r * Z[i, :], kappa, mu, delta_0, d, s)
-            tau += bit_flipped
-        g_hat = self.Solve1BitCS(y, Z, m, d, s)
-        tau = tau / m
-        return g_hat, tau, y
+        y = np.zeros(self.m)
+        for i in range(0, self.m):
+            y[i] = self.oracle(x_in, x_in + self.r * self.Z[i, :])
+        g_hat = self.Solve1BitCS(y)
+        return g_hat
 
-    def TestSparsity(self, y, g_hat, Z, m):
-        '''
-        This function tests agreement between the measurements, y, and the estimated
-        gradient, g_hat. If the agreement is not good enough, it increases s and m.
-
-        '''
-        y_hat = np.sign(np.dot(Z, g_hat))
-        HammingFraction = len([i for i in range(m) if y[i] != y_hat[i]]) / m
-        if HammingFraction >= 0.45:
-            print("Fail!")
-        return HammingFraction
-
-    def GetStepSize(self, x, g_hat, last_step_size, default_step_size, kappa, mu, delta_0, d, s, warm_started):
-        '''This function use line search to estimate the best step size on the given
-        direction via noisy comparison
-        ================ INPUTS ======================
-        x ........................ current point
-        g_hat .................... search direction
-        last_step_size ........... step size from last itertion
-        default_step_size......... a safe lower bound of step size
-        kappa,delta_0, mu......... Comparison oracle parameters.
-        d ........................ dimension of problem
-        s ........................ sparsity
-
-        ================ OUTPUTS ======================
-        alpha .................... step size found
-        less_than_defalut ........ return True if found step size less than default step size
-        queries_count ............ number of oracle queries used in linesearch
-        25th May 2020
-        '''
-
-        # First make sure current step size descends
-        omega = 0.05
-        num_round = 40
-        descend_count = 0
-        queries_count = 0
-        less_than_defalut = False
-        # update_factor = np.sqrt(2)
-        update_factor = 2
-
-        if warm_started:
-            alpha = last_step_size  # start with last step size
-        else:
-            alpha = default_step_size
-        point1 = x - alpha * g_hat
-
-        for round in range(0, num_round):  # compare n rounds for every pair of points,
-            is_descend, bit_flipped = self.QuadraticOracle(point1, x, kappa, mu, delta_0, d, s)
-            queries_count = queries_count + 1
-            if is_descend == 1:
-                descend_count = descend_count + 1
-        p = descend_count / num_round
-        # print(p)
-
-        # we try increase step size if p is larger, try decrease step size is
-        # smaller, otherwise keep the current alpha
-        if p >= 0.5 + omega:  # compare with x
-            while True:
-                point2 = x - update_factor * alpha * g_hat
-                descend_count = 0
-                for round in range(0, num_round):  # compare n rounds for every pair of points,
-                    is_descend, bit_flipped = self.QuadraticOracle(point2, point1, kappa, mu, delta_0, d,
-                                                              s)  # comapre with point1
-                    queries_count = queries_count + 1
-                    if is_descend == 1:
-                        descend_count = descend_count + 1
-                p = descend_count / num_round
-                if p >= 0.5 + omega:
-                    alpha = update_factor * alpha
-                    point1 = x - alpha * g_hat
-                else:
-                    return alpha, less_than_defalut, queries_count
-        elif warm_started == False:
-            less_than_defalut = True
-            return alpha, less_than_defalut, queries_count
-        elif p <= 0.5 - omega:  # else: we try decrease step size
-            while True:
-                alpha = alpha / update_factor
-                if alpha < default_step_size:
-                    alpha = default_step_size
-                    less_than_defalut = True
-                    return alpha, less_than_defalut, queries_count
-                point2 = x - alpha * g_hat
-                descend_count = 0
-                for round in range(0, num_round):
-                    is_descend, bit_flipped = self.QuadraticOracle(point2, x, kappa, mu, delta_0, d, s)  # compare with x
-                    queries_count = queries_count + 1
-                    if is_descend == 1:
-                        descend_count = descend_count + 1
-                p = descend_count / num_round
-                if p >= 0.5 + omega:
-                    return alpha, less_than_defalut, queries_count
-        # else:
-        #    alpha = last_step_size
-
-        return alpha, less_than_defalut, queries_count
+   
 
     # (i) will be the iteration.
     # will input it when I create an instance of this class and then call the step function for the # of iterations.
-    def step(self, i):
-        g_hat, tau, y = self.GradientEstimator(self.x, self.Z, self.r, self.kappa, self.delta_0, self.mu, self.m, self.d, self.s)
-        HammingFraction = self.TestSparsity(y, g_hat, self.Z, self.s, self.m)
-        print(["The Hamming Fraction is " + str(HammingFraction)])
-        if self.line_search:
-            step_size, less_than_defalut, queries_count = self.GetStepSize(self.x, g_hat, self.step_size, self.default_step_size, self.kappa, self.mu,
-                                                                      self.delta_0, self.d, self.s, self.warm_started)
-            self.less_than_default_vec[i] = less_than_defalut
-            self.linesearch_queries[i] = queries_count
-            # print(queries_count)
-        # print(step_size)
-        x = self.x - self.step_size * g_hat
-        self.x = x
-        self.regret[i] = self.object_fcn(x)  # f(x_min) = 0
-        print(self.regret[i])
-        self.tau_vec[i] = tau
+    def step(self):
+        g_hat = self.GradientEstimator(self.x)
+        self.x = self.x - self.step_size * g_hat
+       
+        if self.objfunc is not None:
+            tempval = self.objfunc(self.x)
+            self.function_vals.append(temp)
+            return temp
+        else:
+            return None
 
-        self.function_vals.append(self.object_fcn(self.x))
-
-        if self.reachedFunctionBudget(self.function_budget, self.function_evals):
-            # if budget is reached return parent
-            return self.x, self.function_evals, 'B'
-
-        return self.x, self.function_evals, False
-
-
-
-
+       
 # _____________________________________________
 """
 WEEK 6 - task #5.

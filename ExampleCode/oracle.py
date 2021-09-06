@@ -14,7 +14,7 @@ import matplotlib.pyplot as plt
 from numpy import linalg as LA
 
 #from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
-from benchmarkfunctions import SparseQuadratic, MaxK
+from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 # suppose the function is something like f:R->R s.t. f(x) = 3x^2+2.
 # then the function would be like....
 '''

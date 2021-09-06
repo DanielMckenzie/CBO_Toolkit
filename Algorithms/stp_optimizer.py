@@ -10,7 +10,7 @@ import pandas as pd
 import random
 import matplotlib.pyplot as plt
 from numpy import linalg as LA
-from ExampleCode.utils import random_sampling_directions, multiple_comparisons_oracle
+from ExampleCode.utils import random_sampling_directions, multiple_comparisons_oracle_2
 
 
 class STPOptimizer(BaseOptimizer):
@@ -27,7 +27,7 @@ class STPOptimizer(BaseOptimizer):
         5. function_budget: (type = INT) total number of function evaluations allowed.
     """
 
-    def __init__(self, direction_vector_type, x_0, n, a_k, defined_func, function_budget):
+    def __init__(self, oracle, direction_vector_type, x_0, n, a_k, defined_func, function_budget):
         super().__init__()
 
         self.function_evals = 0
@@ -39,6 +39,8 @@ class STPOptimizer(BaseOptimizer):
         self.f_vals = []
         self.list_of_sk = []
         self.x_0 = x_0
+        # must be a comparison oracle.
+        self.oracle = oracle
 
     def step(self):
         n = self.n
@@ -94,19 +96,19 @@ class STPOptimizer(BaseOptimizer):
             '''
             # formula: ||x_n|| = sqrt(x_n_1^2 + x_n_2^2 + ... + x_n_n^2).
             # let's calculate ||s_k||.
-            
+
             ### DM: Easier:
             '''
             s_k_norm = np.linalg.norm(s_k)
             '''
-            
+
             ### This is a nice implementation of finding the norm though!
-            #sum = 0
-            #for elem in s_k:
+            # sum = 0
+            # for elem in s_k:
             #    elem_squared = elem * elem
             #    sum += elem_squared
-            #sum_sqrt = sum ** 0.5
-            #s_k_norm = sum_sqrt
+            # sum_sqrt = sum ** 0.5
+            # s_k_norm = sum_sqrt
             # print('s_k norm: ', s_k_norm)
             '''
             s_k = s_k / s_k_norm
@@ -126,20 +128,20 @@ class STPOptimizer(BaseOptimizer):
             s_k = 2*np.round(np.random.rand(n))-1
             s_k = s_k/np.sqrt(n)
             '''
-            
-            ### It's interesting to think about why the above line of 
+
+            ### It's interesting to think about why the above line of
             ### code indeed produces a Rademacher vector.
-            
-#            for i in range(n):
-#                rand_choice = random.choice([-1, 1])
-#
-#                if rand_choice == 1:
-#                    count_positive1 += 1
-#                else:
-#                    count_negative1 += 1
-#                # print(str(i) + ': ', rand_choice)
-#                s_k.append(rand_choice)
-#            # print('type sk: ', type(s_k))
+
+            #            for i in range(n):
+            #                rand_choice = random.choice([-1, 1])
+            #
+            #                if rand_choice == 1:
+            #                    count_positive1 += 1
+            #                else:
+            #                    count_negative1 += 1
+            #                # print(str(i) + ': ', rand_choice)
+            #                s_k.append(rand_choice)
+            #            # print('type sk: ', type(s_k))
             # *********
             # call the UTILS function.
             output = random_sampling_directions(1, n, 'rademacher')
@@ -147,10 +149,10 @@ class STPOptimizer(BaseOptimizer):
             # *********
         else:
             print('invalid direction vector type. please input an integer, from 0 to 3.')
-           ### Something I've been experimenting with lately is using the Python 
-           ### built in Error class
-           # raise ValueError('Vector type must be an integer from 0 to 3')
-           ### But this will terminate the function, so it may not be what we want.
+            ### Something I've been experimenting with lately is using the Python
+            ### built in Error class
+            # raise ValueError('Vector type must be an integer from 0 to 3')
+            ### But this will terminate the function, so it may not be what we want.
             return 0
         # ---------
         # 3. generate x+, x-.
@@ -202,7 +204,8 @@ class STPOptimizer(BaseOptimizer):
         # *********
         # call the UTILS function.
         if len(v_list) > 1:
-            argmin, function_evaluations = multiple_comparisons_oracle(v_list, self.defined_func)
+            # argmin, function_evaluations = multiple_comparisons_oracle(v_list, self.defined_func)
+            argmin, function_evaluations = multiple_comparisons_oracle_2(v_list, self.oracle)
             self.function_evals += function_evaluations
             # v_list = argmin
             x_k = argmin[0]
@@ -216,7 +219,7 @@ class STPOptimizer(BaseOptimizer):
         if self.reachedFunctionBudget(self.function_budget, self.function_evals):
             # if budget is reached return parent.
             # solution, list of all function values, termination.
-            while len(self.f_vals) > (self.function_budget/2):
+            while len(self.f_vals) > (self.function_budget / 2):
                 self.f_vals.pop()
             return x_k, self.f_vals, 'B'
         # return solution, list of all function values, termination (which will be False here).

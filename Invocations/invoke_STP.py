@@ -3,6 +3,7 @@ from Algorithms.stp_optimizer import STPOptimizer
 from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 import numpy as np
+from ExampleCode.oracle import Oracle
 
 # ---------
 print('sample invoke.')
@@ -11,8 +12,9 @@ n = 20000  # problem dimension.
 s_exact = 200  # true sparsity.
 noiseamp = 0.001  # noise amplitude.
 # initialize objective function.
-#obj_func = MaxK(n, s_exact, noiseamp)
-obj_func = SparseQuadratic(n, s_exact, noiseamp)
+
+obj_func_1 = SparseQuadratic(n, s_exact, noiseamp)
+obj_func_2 = MaxK(n, s_exact, noiseamp)
 # create an instance of STPOptimizer.
 # direction_vector_type = 0  # original.
 # direction_vector_type = 1  # gaussian.
@@ -22,8 +24,12 @@ a_k = 0.1  # step-size.
 function_budget = 10000
 # initial x_0.
 x_0 = np.random.randn(n)
+
+# Define the comparison oracle.
+oracle = Oracle(obj_func_1)
+
 # stp instance.
-stp1 = STPOptimizer(direction_vector_type, x_0, n, a_k, obj_func, function_budget)
+stp1 = STPOptimizer(oracle, direction_vector_type, x_0, n, a_k, obj_func_1, function_budget)
 # step.
 termination = False
 prev_evals = 0

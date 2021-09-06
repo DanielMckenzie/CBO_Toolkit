@@ -12,7 +12,7 @@ import random
 from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 
-from ExampleCode.utils import random_sampling_directions, multiple_comparisons_oracle
+from ExampleCode.utils import random_sampling_directions, multiple_comparisons_oracle_2
 
 # this class implements the Gradient-Less Descent with Binary Search Algorithm using a Comparison Oracle.
 # source: https://arxiv.org/pdf/1911.06317.pdf.
@@ -28,7 +28,7 @@ class GLDOptimizer(BaseOptimizer):
         5. function_budget: (type = INT) total number of function evaluations allowed.
     """
 
-    def __init__(self, defined_func, x_0, R, r, function_budget):
+    def __init__(self, oracle, defined_func, x_0, R, r, function_budget):
         super().__init__()
 
         self.function_evals = 0
@@ -39,6 +39,8 @@ class GLDOptimizer(BaseOptimizer):
         self.function_budget = function_budget
         self.f_vals = []
         self.list_of_xt = []
+        # must be a comparison oracle.
+        self.oracle = oracle
 
         K = math.log(self.R / self.r, 10)
         self.K = K
@@ -121,7 +123,8 @@ class GLDOptimizer(BaseOptimizer):
         # *********
         # call the UTILS function.
         if len(v_list) > 1:
-            argmin, function_evaluations = multiple_comparisons_oracle(v_list, self.defined_func)
+            # argmin, function_evaluations = multiple_comparisons_oracle(v_list, self.defined_func)
+            argmin, function_evaluations = multiple_comparisons_oracle_2(v_list, self.oracle)
             self.function_evals += function_evaluations
             v_list = argmin
         # *********

@@ -70,7 +70,6 @@ INPUTS....
 '''
 # OUTPUT: matrix whose rows are random sampling directions.
 
-
 def random_sampling_directions(number_of_rows, length_of_row, type_of_distribution):
     # original.
     if type_of_distribution == 'original':
@@ -146,8 +145,8 @@ def random_sampling_directions(number_of_rows, length_of_row, type_of_distributi
 """
 util #2.
 """
-#from ExampleCode.oracle import Oracle, opt_function
-# from ExampleCode.benchmarkfunctions import SparseQuadratic
+from ExampleCode.oracle import Oracle, opt_function
+from ExampleCode.benchmarkfunctions import SparseQuadratic
 # in this util, we will write a function that uses comparison oracle to determine the best point among 3 or more.
 # this is used in GLD and STP.
 #   STP compares 3, specifically.
@@ -185,25 +184,54 @@ def multiple_comparisons_oracle(v_list, objective_function):
     # return list of values AND function evaluations.
     return v_list, function_evals
 
+# takes in ORACLE instead of Objective Function (the ORACLE should already be initialized with obj. func.).
+def multiple_comparisons_oracle_2(v_list, oracle):
+    function_evals = 0
+    while len(v_list) >= 2:
+        oracle_query = oracle
+        # new_instance_1 = Oracle(objective_function)
+        # print('0:', v_list[0])
+        # print('1:', v_list[1])
+        # input the first two elements of the list into the oracle.
+        first_comparison = oracle_query(v_list[0], v_list[1])
+        # INCREMENT function_evals by 1.
+        function_evals += 1
+        # possibilities of Oracle output:
+        if first_comparison == +1:
+            # 0th elem is smaller.
+            # remove 1st element.
+            v_list.pop(1)
+        elif first_comparison == -1:
+            # 1st elem is smaller.
+            # remove 0th element.
+            v_list.pop(0)
+        else:
+            # function values are equal with elements 0 and 1 of list.
+            # choose one at random to drop.
+            rand_choice = random.choice([0, 1])
+            v_list.pop(rand_choice)
+    # return list of values AND function evaluations.
+    return v_list, function_evals
+
 
 # ---------
 # test.
-#n_def = 20000  # problem dimension.
-#s_exact = 200  # True sparsity.
-#noise_amp = 0.001  # noise amplitude.
-## initialize objective function.
-#objective_func = SparseQuadratic(n_def, s_exact, noise_amp)
-#x = np.random.randn(n_def)
-#y = np.random.randn(n_def)
-#z = np.random.randn(n_def)
-#w = np.random.randn(n_def)
-#argmin, function_evaluations = multiple_comparisons_oracle([x, y, z, w], objective_func)
-## argmin = argmin[0]
-#print('length: ', len(argmin))
-#print('\n')
-#print('argmin: ', argmin)
-#print('func evals: ', function_evaluations)
-## seems to work well.
+n_def = 20000  # problem dimension.
+s_exact = 200  # True sparsity.
+noise_amp = 0.001  # noise amplitude.
+# initialize objective function.
+objective_func = SparseQuadratic(n_def, s_exact, noise_amp)
+x = np.random.randn(n_def)
+y = np.random.randn(n_def)
+z = np.random.randn(n_def)
+w = np.random.randn(n_def)
+argmin, function_evaluations = multiple_comparisons_oracle([x, y, z, w], objective_func)
+# argmin = argmin[0]
+print('length: ', len(argmin))
+print('\n')
+print('argmin: ', argmin)
+print('func evals: ', function_evaluations)
+# seems to work well.
 # ---------
 # tested on GLD & STP - works for both.
 # implemented in both algorithms.

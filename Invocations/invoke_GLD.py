@@ -6,6 +6,7 @@ from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 import numpy as np
 import pandas as pd
+from ExampleCode.oracle import Oracle
 
 # ---------
 print('sample invoke.')
@@ -21,9 +22,13 @@ x_0_ = np.random.rand(n_def)
 print('shape of x_0_: ', len(x_0_))
 R_ = 10
 r_ = .01
+
+# Define the comparison oracle.
+oracle = Oracle(obj_func_1)
+
 # GLDOptimizer instance.
 # def __init__(self, defined_func, x_0, R, r, function_budget).
-stp1 = GLDOptimizer(obj_func_1, x_0_, R_, r_, max_function_evals)
+stp1 = GLDOptimizer(oracle, obj_func_1, x_0_, R_, r_, max_function_evals)
 # stp1 = GLDOptimizer(obj_func_2, x_0_, R_, r_, max_function_evals)
 # step.
 termination = False

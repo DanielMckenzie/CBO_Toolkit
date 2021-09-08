@@ -5,6 +5,7 @@ from ExampleCode.benchmarkfunctions import SparseQuadratic, MaxK
 from matplotlib import pyplot as plt
 from ExampleCode.base import BaseOptimizer
 import math
+from numpy import linalg as LA
 
 
 
@@ -200,7 +201,8 @@ def CMA_ES():
     xmean = np.random.randn(N)  # objective variables initial point (like x_0).
     cma_sigma = 0.5
     stopfitness = 1e-10  # minimization.
-    stopeval = 1e3*(N**2)  # max number of function evaluations.
+    # stopeval = 1e3*(N**2)  # max number of function evaluations.
+    stopeval = 1000  # max number of function evaluations.
 
     '''
     2.
@@ -294,6 +296,7 @@ def CMA_ES():
 
         # generate & evaluate lambda offspring.
         for k in range(cma_lambda):
+            print(k)
             # standard normally distributed vector.
             rand_col = np.random.rand(N)
             # print(rand_col)
@@ -302,8 +305,15 @@ def CMA_ES():
             B_D = np.dot(B, D)
             new_col = arz[:, k].reshape((N, 1))
             arx_right_mult = np.dot(B_D, new_col)
-            # print(arx_right_mult)
+            print('B: ', B)
+            print('D: ', D)
+            print('B_D: ', B_D)
+            print('new_col: ', new_col)
+            print('arx_right_mult:')
+            print(arx_right_mult)
             arx_right = np.array([element[0] * cma_sigma for element in arx_right_mult])
+            print('arx_right:')
+            print(arx_right)
             # print('RIGHT: ', arx_right)
             arx_right_trans = arx_right.reshape(N, 1)
             # print(arx_right_trans)
@@ -314,7 +324,13 @@ def CMA_ES():
             # print(xmean+arx_right_trans)
             # print('\n')
             # we need the sum of xmean and arx_right.
+            print(xmean.shape)
+            if xmean.shape == (N, 1):
+                xmean = xmean.reshape(N)
+                print('new shape: ', xmean.shape)
             arx_col = xmean + arx_right
+            print('xmean: ')
+
             # print('ARX COL: ', arx_col)
             """
             # for element in arx_right_mult:
@@ -334,43 +350,180 @@ def CMA_ES():
         2.
         '''
         # sort by fitness & compute weighted mean into xmean.
+        arfitness_dict = dict()
+        for i in range(len(arfitness)):
+            arfitness_dict[i] = arfitness[i]
+        print('before sorted: ', arfitness_dict)
+        arfitness_dict = dict(sorted(arfitness_dict.items(), key=lambda x: x[1], reverse=False))
+        print('after sorted: ', arfitness_dict)
+        print('INDICES: ', arfitness_dict.keys())
+        print('VALUES: ', arfitness_dict.values())
+        arfitness = list(arfitness_dict.values())
+        arindex = list(arfitness_dict.keys())
+        print('arindex TESTING....')
+        print(arindex[:mu])
+        # print(arfitness)
+        # print(type(arindex))
+        xmean_arx = arx[:, arindex[:mu]]
+        # print(xmean_arx)
+        xmean = np.dot(xmean_arx, weights)
+        print('xmean: ')
+        print(xmean)
+        zmean_arz = arz[:, arindex[:mu]]
+        zmean = np.dot(zmean_arz, weights)
+        print('zmean: ')
+        print(zmean)
 
+        '''
+        3.
+        '''
+        # cumulation: update evolution paths.
+        ps = (1 - cs) * ps + (np.sqrt(cs * (2 - cs) * mueff)) * (np.dot(B, zmean))
+        print('ps: ')
+        print(ps)
+        ## TODO: hsig = LA.norm(ps) / np.sqrt(1 - (1 - cs) ** (2 * counteval / cma_lambda)) / chiN < 1.4+2 / (N+1)
+        hsig = LA.norm(ps) / np.sqrt(1 - (1 - cs) ** (2 * counteval / cma_lambda)) / chiN - 1.4 + 2 / (N + 1)
+        '''
+        *********
+        ASK ABOUT HSIG FORMULA - what is the < symbol actually supposed to be.
+        for now: I replaced "<" with "-". otherwise, the value becomes a BOOLEAN instead of a FLOAT.
+        *********
+        '''
+        print('hsig: ')
+        print(hsig)
+        pc = (1-cc) * pc + hsig * np.sqrt(cc*(2-cc)*mueff) * (np.dot(np.dot(B, D), zmean))
+        print('pc: ')
+        print(pc)
 
+        '''
+        4. 
+        '''
+        # adapt covariance matrix C.
+        """
+    adapt covariance matrix C.
+        C =  (1-c1-cmu) * C ...
+            + c1 * (pc*pc’ ... % plus rank one update
+                + (1-hsig) * cc*(2-cc) * C) ... % minor correction
+                    + cmu ... % plus rank mu update * (B*D*arz(:,arindex(1:mu))) ...
+                        * diag(weights) * (B*D*arz(:,arindex(1:mu)))’;
+        """
+        first_line_full = (1 - c1 - cmu) * C
+        print('first_line_full:')
+        print(first_line_full)
+        second_line_one = c1
+        second_line_two = (np.dot(pc, np.transpose(pc)))
+        third_line = (1 - hsig) * cc * (2 - cc) * C
+        second_line_full = second_line_one * (second_line_two + third_line)
+        print('second_line_full:')
+        print(second_line_full)
+        fourth_line = cmu
+        fifth_line_one = np.dot(B, D)
+        print('fifth_line_one:')
+        print(fifth_line_one)
+        fifth_line_two = arz[:, arindex[:mu]]
+        fifth_line = np.dot(fifth_line_one, fifth_line_two)
+        print('fifth_line:')
+        print(fifth_line)
+        sixth_line_one = np.diag(np.transpose(weights)[0])
+        print('weights transposed:')
+        print(np.transpose(weights)[0])
+        print('sixth_line_one:')
+        print(sixth_line_one)
+        # print(weights)
+        sixth_line_two = np.transpose(fifth_line)
+        sixth_line = np.dot(np.dot(fifth_line, sixth_line_one), sixth_line_two)
+        fourth_line_full = fourth_line * sixth_line
+        '''
+        add first_line_full, second_line_full, fourth_line_full (where 4th_line_full = 4th_line * 5th_line * 6th_line).
+        '''
+        C = first_line_full + second_line_full + fourth_line_full
+        print('\n')
+        print('*********')
+        print('C....')
+        print(C)
+        print('*********')
+        print('shape of C: ', C.shape)
+        print('\n')
 
+        '''
+        5. 
+        '''
+        # adapt step-size sigma.
+        cma_sigma = cma_sigma * math.exp((cs / damps) * (LA.norm(ps) / chiN - 1))
+        print('sigma: ', cma_sigma)
 
-        counteval += 100000000000
+        '''
+        6.
+        '''
+        # update B and D from C.
+        ## TODO: if counteval - eigeneval > cma_lambda / (cone + cmu) / N / 10:
+        if counteval - eigeneval > cma_lambda / cmu / N / 10:
+            eigeneval = counteval
+            C = np.triu(C) + np.transpose(np.triu(C, 1))
+            B, D = LA.eig(C)
+            print('B: ')
+            print(B)
+            B = np.diag(B)
+            print('D....')
+            print(D)
+            print(np.diag(D))
+            D = np.diag(np.sqrt(np.absolute(np.diag(D))))
+            print('C: ')
+            print(C)
+            print(C.shape)
+            print('D: ')
+            print(D)
+            print(D.shape)
+
+        '''
+        7.
+        '''
+        # break, if fitness is good enough.
+        if arfitness[0] <= stopfitness:
+            break
+
+        '''
+        8.
+        '''
+        # escape flat fitness, or better terminate.
+        if arfitness[0] == arfitness[math.ceil(0.7 * cma_lambda)]:
+            cma_sigma = cma_sigma * math.exp(0.2 + cs/damps)
+            print('WARNING: flat fitness, consider reformulating the objective.')
+        print(str(counteval) + ': ' + str(arfitness[0]))
+
+        # counteval += 100000000000
+    """
+    break out of WHILE loop.
+    """
+    # end of WHILE loop; do print ending statements.
     print('\n')
     print('arz: ')
     print(arz)
     print('arx: ')
     print(arx)
-    print()
+    print('\n')
+
+    '''
+    1.
+    '''
+    # final message.
+    print(str(counteval) + ': ' + str(arfitness[0]))
+    xmin = arx[:, arindex[0]]
+    print('xmin: ', xmin)
+    return xmin
 
 
 
 
 
-
-
-
+# ----------------------------------------------------
 # INVOCATION.
 print('\n')
 print('\n')
 print('********************************************')
 print('cma testing....')
-CMA_ES()
-
-
-
-
-
-
-
-
-
-
-
-
-
+minimizer = CMA_ES()
+print('\n')
+print('xmin: ', minimizer)
 
 

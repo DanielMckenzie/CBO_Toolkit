@@ -68,6 +68,7 @@ max_function_evals = 10000
 # in my class, I can't have a step function.
 # actually, I can have a step function but it will literally only have 1 step.
 
+'''
 class cmaOptimizer_pythonFunction(BaseOptimizer):
 
     def __init__(self, defined_func, x_0, sigma_, options_, function_budget):
@@ -97,15 +98,14 @@ class cmaOptimizer_pythonFunction(BaseOptimizer):
         if self.reachedFunctionBudget(self.function_budget, number_func_evals):
             # number of function evaluations is higher than the function budget.
             # solution should remain the same I guess....
-            '''
+            
             # return solution, list of all function values, termination (which will be False here).
             return x_t, self.f_vals, False
-            '''
+            
             # solution: solution.
             x_t = solution
             # self.f_vals: logger.f[:, 5]
             self.f_vals = logger.f[:number_func_evals, 5]
-            return x_t, self.f_vals, 'B'
         """
 
         x_t = solution
@@ -144,11 +144,11 @@ print('\n')
 print('SOLUTION: ')
 print(solution)
 # plot.
-plt.plot(f_evals, func_values)
-'''
-plt.show()
-'''
+# plt.plot(f_evals, func_values)
 
+plt.show()
+
+'''
 
 
 
@@ -202,7 +202,7 @@ def CMA_ES():
     cma_sigma = 0.5
     stopfitness = 1e-10  # minimization.
     # stopeval = 1e3*(N**2)  # max number of function evaluations.
-    stopeval = 1000  # max number of function evaluations.
+    stopeval = 100000  # max number of function evaluations.
 
     '''
     2.
@@ -292,6 +292,11 @@ def CMA_ES():
     arz = np.empty([N, cma_lambda])
     arx = np.empty([N, cma_lambda])
     arfitness = np.empty(cma_lambda)
+
+    # increment at each step.
+    f_evaluations = []
+
+    # main while loop.
     while counteval < stopeval:
 
         # generate & evaluate lambda offspring.
@@ -349,6 +354,11 @@ def CMA_ES():
         '''
         2.
         '''
+        # rewrite so sort is using Oracle queries.
+        # possibility: use bubbleSort.
+        # set mu equal to 1.
+        # arindex[:mu] is the index of the best value (since mu = 1).
+        # use ORACLE to find best value (f(x) is lowest).
         # sort by fitness & compute weighted mean into xmean.
         arfitness_dict = dict()
         for i in range(len(arfitness)):
@@ -373,6 +383,10 @@ def CMA_ES():
         zmean = np.dot(zmean_arz, weights)
         print('zmean: ')
         print(zmean)
+
+        # add the value to f_evaluations.
+        # at this increment, arx[:, arindex[0]] is the current xmin.
+        f_evaluations.append(strfitnessfct(arx[:, arindex[0]]))
 
         '''
         3.
@@ -456,11 +470,14 @@ def CMA_ES():
         6.
         '''
         # update B and D from C.
+        # look into C more --> make sure it's right.
+        # also LA.eig() --> make sure B and D are the correct matrices. (Same as MATLAB implementation.)
         ## TODO: if counteval - eigeneval > cma_lambda / (cone + cmu) / N / 10:
         if counteval - eigeneval > cma_lambda / cmu / N / 10:
             eigeneval = counteval
             C = np.triu(C) + np.transpose(np.triu(C, 1))
-            B, D = LA.eig(C)
+            D, B = LA.eig(C)
+            """
             print('B: ')
             print(B)
             B = np.diag(B)
@@ -474,6 +491,8 @@ def CMA_ES():
             print('D: ')
             print(D)
             print(D.shape)
+            """
+            D = np.diag(np.sqrt(D))
 
         '''
         7.
@@ -510,10 +529,10 @@ def CMA_ES():
     print(str(counteval) + ': ' + str(arfitness[0]))
     xmin = arx[:, arindex[0]]
     print('xmin: ', xmin)
-    return xmin
+    return xmin, f_evaluations
 
 
-
+# cma_testing.
 
 
 # ----------------------------------------------------
@@ -522,8 +541,27 @@ print('\n')
 print('\n')
 print('********************************************')
 print('cma testing....')
-minimizer = CMA_ES()
+minimizer, function_evaluations = CMA_ES()
 print('\n')
 print('xmin: ', minimizer)
+
+# add feature to CMA - list of function values so we can graph and verify that it is decreasing.
+# list of xmin values at each iteration of the while loop.
+# future work -- Oracle generates wrong value 1 every 10 times.
+
+'''
+PLOT the function evaluations.
+'''
+print('function evaluations: ', function_evaluations)
+#plt.plot(function_evaluations)
+#plt.ylabel('func evals')
+#plt.xlabel('iters')
+#plt.show()
+
+f_ev = [6.921865582968084, 4.606006914446414, 5.749723058734074, 5.146652787541188, 6.878170419649808, 6.675132477168817, 6.752000694148107, 6.705644025909386, 4.763693924969436, 5.3701349609275, 3.969398874804226, 4.32026851024463, 4.717311794599184, 5.386846948117601, 5.926757835773149, 4.967397324920249, 5.430952090110869, 6.432130048187147, 5.384342275916051, 5.541322774091719, 5.07675679700658, 5.281647830392805, 4.098167556700788, 4.338078657353882, 5.042412676162208, 4.334221762152559, 4.192930968518929, 3.9421854068347475, 3.0363511339792053, 3.780066753770837, 4.226358875386052, 4.011370529955889, 3.15555976337556, 3.5404866514044246, 3.647046755570129, 3.6759619419660132, 3.112221716316473, 3.272588997433446, 2.88751586799547, 2.6135849130956443, 2.3259922560660047, 2.438741208830235, 2.53443219556753, 1.9956211958340395, 2.0972258768009184, 1.759219618188357, 1.7795798395774423, 1.5779569878006088, 1.674372222753495, 1.5750542525228062, 1.305570603863326, 1.1593329125531144, 1.2803245622581094, 1.1402105770750575, 1.279594424971726, 1.2083246997318868, 1.3169314811413713, 1.278155737839891, 1.0093335390051812, 0.8347157422619376, 0.751602199962266, 0.8047493771705486, 0.9160828258907148, 0.8292549907542028, 0.8885368395585922, 0.9861607459434669, 0.9404222685575038, 0.863388844431041, 1.0074968365818555, 1.227039796960248, 1.5017288427242892, 1.4876713514951128, 1.263458299091122, 1.1040890200287383, 1.0531377180213037, 0.8680547232668385, 0.9833447484554586, 0.7985716004688523, 0.6442643520953752, 0.7555683769409218, 0.9117643271874111, 0.9203862491360525, 0.8151583731941624, 0.71364516363128, 0.6953880320349936, 0.6585525988141574, 0.5723624517275144, 0.47779147027444846, 0.4640864185705946, 0.4355863073932045, 0.49681256394452383, 0.3424981796171862, 0.34186314800935913, 0.27165640549593845, 0.21594787296616766, 0.22602986045473392, 0.3019531533694716, 0.3320053265829124, 0.2982742245810271, 0.344235297269408]
+print(len(f_ev))
+plt.plot(f_ev)
+plt.show()
+
 
 

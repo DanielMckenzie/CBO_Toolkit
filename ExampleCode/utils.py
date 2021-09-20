@@ -145,9 +145,9 @@ def random_sampling_directions(number_of_rows, length_of_row, type_of_distributi
 """
 util #2.
 """
-from ExampleCode.oracle import Oracle, opt_function
-from ExampleCode.benchmarkfunctions import SparseQuadratic
-# in this util, we will write a function that uses comparison oracle to determine the best point among 3 or more.
+# from ExampleCode.oracle import Oracle, opt_function
+from oracle import Oracle
+# # in this util, we will write a function that uses comparison oracle to determine the best point among 3 or more.
 # this is used in GLD and STP.
 #   STP compares 3, specifically.
 #   GLD compares an unknown amount (specified by parameters when called).
@@ -213,6 +213,24 @@ def multiple_comparisons_oracle_2(v_list, oracle):
     # return list of values AND function evaluations.
     return v_list, function_evals
 
+def BubbleSort(v_arr, oracle):
+    '''
+    Simple oracle based implementation of bubble sort
+    v_arr = (num_items) x (dim) array 
+    '''
+    v_list = list(v_arr)
+    n = v_arr.shape[0]  # number of items
+    num_queries = 0  
+    for i in range(n-1):
+        for j in range(0,n-i-1):
+            num_queries += 1 
+            temp = oracle(v_list[j+1], v_list[j])
+            if temp == 1:
+                # Swap these two elements
+                v_list[j], v_list[j+1]  = v_list[j+1], v_list[j]
+                
+                
+    return np.array(v_list), num_queries
 
 # ---------
 # test.
@@ -220,17 +238,16 @@ n_def = 20000  # problem dimension.
 s_exact = 200  # True sparsity.
 noise_amp = 0.001  # noise amplitude.
 # initialize objective function.
-objective_func = SparseQuadratic(n_def, s_exact, noise_amp)
+#objective_func = SparseQuadratic(n_def, s_exact, noise_amp)
 x = np.random.randn(n_def)
 y = np.random.randn(n_def)
 z = np.random.randn(n_def)
 w = np.random.randn(n_def)
-argmin, function_evaluations = multiple_comparisons_oracle([x, y, z, w], objective_func)
+#argmin, function_evaluations = multiple_comparisons_oracle([x, y, z, w], objective_func)
 # argmin = argmin[0]
-print('length: ', len(argmin))
-print('\n')
-print('argmin: ', argmin)
-print('func evals: ', function_evaluations)
+#print('\n')
+#print('argmin: ', argmin)
+#print('func evals: ', function_evaluations)
 # seems to work well.
 # ---------
 # tested on GLD & STP - works for both.

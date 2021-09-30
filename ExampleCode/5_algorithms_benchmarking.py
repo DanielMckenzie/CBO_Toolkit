@@ -58,6 +58,8 @@ signOPT_func_list = []
 scobo_func_list = []
 cma_func_list = []
 
+## DM Code suggestion
+# X_0 = np.random.randn(n, number_of_runs)
 
 # call STP.
 def run_STP(number_of_runs):
@@ -76,6 +78,8 @@ def run_STP(number_of_runs):
         # initial x_0.
         random.seed()
         x_0 = np.random.randn(n)
+        ## DM Code suggestion
+        # x_0 = copy.copy(X_0[:,number])
         # stp instance.
         stp1 = STPOptimizer(main_oracle, direction_vector_type, x_0, n, a_k, objective_function_choice, function_budget)
         # step.

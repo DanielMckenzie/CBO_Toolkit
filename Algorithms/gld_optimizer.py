@@ -38,6 +38,8 @@ class GLDOptimizer(BaseOptimizer):
         self.r = r
         self.function_budget = function_budget
         self.f_vals = []
+        ## DM Code suggestion
+        # self.f_vals = [defined_func(x_0)]
         self.list_of_xt = []
         # must be a comparison oracle.
         self.oracle = oracle

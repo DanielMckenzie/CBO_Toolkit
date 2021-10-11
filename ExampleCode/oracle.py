@@ -45,7 +45,31 @@ class Oracle:
         elif self.f_x(y) - self.f_x(x) > 0:
             # print(1)
             return 1
+        else:
+            return 0
 
+
+# class which represents Comparison Oracle.
+class Oracle_pycutest:
+
+    def __init__(self, f_x):
+        # f_x is a function.
+        # we have to define what that function does... right?
+        self.f_x = f_x
+
+    # calls the function f_x the class is initialized with.
+    # function takes in inputs x and y.
+    #   returns +1 if f(y)-f(x) > 0.
+    #   returns -1 if f(y)-f(x) < 0.
+    def __call__(self, x, y):
+        if self.f_x(y) - self.f_x(x) < 0:
+            # print(-1)
+            return -1
+        elif self.f_x(y) - self.f_x(x) > 0:
+            # print(1)
+            return 1
+        else:
+            return 0
 
 # ---------
 # TESTING EXAMPLE....

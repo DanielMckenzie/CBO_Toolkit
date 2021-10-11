@@ -26,10 +26,12 @@ from Algorithms.gld_optimizer import GLDOptimizer
 from Algorithms.SignOPT2 import SignOPT
 
 ''' SCOBO. '''
-from ExampleCode.scobo_optimizer import SCOBOoptimizer
+from Algorithms.scobo_optimizer import SCOBOoptimizer
 
 ''' CMA. '''
-from ExampleCode.CMA_2 import CMA
+from Algorithms.CMA_2 import CMA
+# import copy.
+import copy
 # import sys.
 import sys
 
@@ -57,9 +59,13 @@ gld_func_list = []
 signOPT_func_list = []
 scobo_func_list = []
 cma_func_list = []
-
-## DM Code suggestion
-# X_0 = np.random.randn(n, number_of_runs)
+# number of times we will run each alg and average over them.
+number_runs = 3
+# initial x0 to be used for each alg.
+'''
+X_0 = np.random.randn(n, number_runs)
+'''
+X_0 = np.random.randn(n)
 
 # call STP.
 def run_STP(number_of_runs):
@@ -77,9 +83,14 @@ def run_STP(number_of_runs):
         # function_budget = 10000
         # initial x_0.
         random.seed()
+        '''
         x_0 = np.random.randn(n)
+        '''
         ## DM Code suggestion
-        # x_0 = copy.copy(X_0[:,number])
+        '''
+        x_0 = copy.copy(X_0[:, number])
+        '''
+        x_0 = copy.copy(X_0)
         # stp instance.
         stp1 = STPOptimizer(main_oracle, direction_vector_type, x_0, n, a_k, objective_function_choice, function_budget)
         # step.
@@ -114,7 +125,13 @@ def run_GLD(number_of_runs):
         # ---------
         print('sample invoke.')
         random.seed()
+        '''
         x_0_ = np.random.rand(n)
+        '''
+        '''
+        x_0_ = copy.copy(X_0[:, j])
+        '''
+        x_0_ = copy.copy(X_0)
         # print('shape of x_0_: ', len(x_0_))
         R_ = 10
         r_ = .01
@@ -158,7 +175,13 @@ def run_SignOPT(number_of_runs):
         # function_budget_1 = int(1e5)
         m = 100
         random.seed()
+        '''
         x0 = np.random.randn(n)
+        '''
+        '''
+        x0 = copy.copy(X_0[:, k])
+        '''
+        x0 = copy.copy(X_0)
         step_size = 0.2
         r = 0.1
         max_iters = int(function_budget/2)
@@ -189,7 +212,13 @@ def run_SCOBO(number_of_runs):
         step_size = 0.5
         query_budget = int(1e5)
         random.seed()
+        '''
         x0 = np.random.randn(n)
+        '''
+        '''
+        x0 = copy.copy(X_0[:, m])
+        '''
+        x0 = copy.copy(X_0)
         r = 0.1
         m = 100
         s_ex = 20
@@ -221,7 +250,13 @@ def run_CMA(number_of_runs):
         x0 = 100 * np.random.randn(n)
         '''
         random.seed()
+        '''
         x0 = np.random.randn(n)
+        '''
+        '''
+        x0 = copy.copy(X_0[:, l])
+        '''
+        x0 = copy.copy(X_0)
         step_size = 0.2
         r = 0.1
         max_iters = int(function_budget/2)
@@ -251,6 +286,12 @@ print('\n')
 print('GLD....')
 run_GLD(3)
 print(len(gld_func_list))
+print('\n')
+print('*********')
+print('*** GLD GLD GLD *** : ')
+print(gld_func_list)
+print('*********')
+print('\n')
 # SignOPT:
 print('\n')
 print('SIGNOPT....')

@@ -37,9 +37,12 @@ class GLDOptimizer(BaseOptimizer):
         self.R = R
         self.r = r
         self.function_budget = function_budget
+        '''
         self.f_vals = []
+        '''
+
         ## DM Code suggestion
-        # self.f_vals = [defined_func(x_0)]
+        self.f_vals = [defined_func(x_0)]
         self.list_of_xt = []
         # must be a comparison oracle.
         self.oracle = oracle
@@ -69,8 +72,6 @@ class GLDOptimizer(BaseOptimizer):
         '''
         # *********
         # call the UTILS function.
-        output = random_sampling_directions(1, n, 'gaussian')
-        D = output / n
         # *********
         # iterate through k's in K (which equals log(R/r)).
         for k in range(int(self.K)):
@@ -78,10 +79,12 @@ class GLDOptimizer(BaseOptimizer):
             r_k = 2 ** -k
             r_k = r_k * self.R
             # print('r_k: ', r_k)
-            r_k_D = np.dot(r_k, D)
+            output = random_sampling_directions(1, n, 'gaussian')
+            D = output / n
+            v_k = np.dot(r_k, D)
             # sample v_k from r_k_D.
-            random_dir = random.randint(0, n - 1)
-            v_k = r_k_D[random_dir]
+            # random_dir = random.randint(0, n - 1)
+            # v_k = r_k_D[random_dir]
             # print('vk: ', v_k)
             next_el = x_t + v_k
             # add each x_t + v_k to a list for all k in K.

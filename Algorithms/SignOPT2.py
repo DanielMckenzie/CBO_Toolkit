@@ -30,6 +30,7 @@ class SignOPT(BaseOptimizer):
         # In development, we'll have access to both the oracle and the function.
         # In practice this will not be the case.
             self.f_vals = [self._function(x0)]
+            self._queries += 1
         
         self.x_vals = [x0]
         
@@ -76,9 +77,10 @@ class SignOPT(BaseOptimizer):
             # if budget is reached return current iterate.
             # solution, list of all function values, termination.
             if self._function is not None:
-                return self.x, self.f_vals, 'B'
+                return self.x, self.f_vals, 'B', self._queries
             else:
-                return self.x, None, 'B'
+                return None, None, 'B', None
+        return self.x, self.f_vals, False, self._queries
         
         
     

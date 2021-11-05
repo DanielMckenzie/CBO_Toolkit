@@ -41,9 +41,11 @@ while termination is False:
 # plot the decreasing function.
 plt.plot(func_value)
 plt.show()
+plt.close()
 # log x-axis.
 plt.semilogy(func_value)
 plt.show()
+plt.close()
 # ---------
 print('\n')
 print('number of function vals: ', len(func_value))

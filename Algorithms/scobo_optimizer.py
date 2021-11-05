@@ -428,24 +428,23 @@ Example of Class implementation....
 #         return self.x, self.function_evals, False
 
 
-
-
 # _______________________________________________________
 '''
 SCOBO implemented as a class.
 '''
-from base import BaseOptimizer
+from ExampleCode.base import BaseOptimizer
 import numpy as np
 import matplotlib.pyplot as plt
 import gurobipy as gp
 import random
 from gurobipy import GRB, quicksum
-from utils import random_sampling_directions
+from ExampleCode.utils import random_sampling_directions
+
 
 class SCOBOoptimizer(BaseOptimizer):
-    def __init__(self, oracle, step_size, query_budget, x0, r, m, s, objfunc = None):
+    def __init__(self, oracle, step_size, query_budget, x0, r, m, s, objfunc=None):
         super().__init__()
-        
+
         self.oracle = oracle
         self.num_queries = 0
         self.step_size = step_size
@@ -457,8 +456,10 @@ class SCOBOoptimizer(BaseOptimizer):
         self.d = len(x0)
         self.objfunc = objfunc
         if self.objfunc is not None:
-            self.function_vals = []
-            
+            # ---------
+            # making sure f(x0) is outputted as first function evaluation.
+            self.function_vals = [self.objfunc(self.x)]
+
         # Initialize search directions Z
         self.Z = random_sampling_directions(self.m, self.d, 'rademacher')
 
@@ -482,7 +483,8 @@ class SCOBOoptimizer(BaseOptimizer):
         model.setObjective(quicksum(c[i] * x[i] for i in range(0, 2 * self.d)), GRB.MAXIMIZE)
         model.addConstr(quicksum(x) <= np.sqrt(self.s), "ell_1")  # sum_i x_i <=1
         model.addConstr(
-            quicksum(x[i] * x[i] for i in range(0, 2 * self.d)) - 2 * quicksum(x[i] * x[self.d + i] for i in range(0, self.d)) <= 1,
+            quicksum(x[i] * x[i] for i in range(0, 2 * self.d)) - 2 * quicksum(
+                x[i] * x[self.d + i] for i in range(0, self.d)) <= 1,
             "ell_2")  # sum_i x_i^2 <= 1
         model.addConstrs(x[i] >= 0 for i in range(0, 2 * self.d))
         model.Params.OUTPUTFLAG = 0
@@ -509,34 +511,33 @@ class SCOBOoptimizer(BaseOptimizer):
         g_hat = self.Solve1BitCS(y)
         return g_hat
 
-   
-
     # (i) will be the iteration.
     # will input it when I create an instance of this class and then call the step function for the # of iterations.
     def step(self):
         g_hat = self.GradientEstimator(self.x)
         self.num_queries += self.m
         self.x = self.x - self.step_size * g_hat
-       
+        tempval = self.objfunc(self.x)
+
         if self.reachedFunctionBudget(self.query_budget, self.num_queries):
             # if budget is reached terminate.
             if self.objfunc is not None:
-                tempval = self.objfunc(self.x)
+                # tempval = self.objfunc(self.x)
                 self.function_vals.append(tempval)
-                return tempval, 'B'
+                return tempval, self.function_vals, 'B', self.num_queries
             else:
-                return None, 'B'
+                return None, None, 'B', None
         else:
             if self.objfunc is not None:
-                tempval = self.objfunc(self.x)
+                # tempval = self.objfunc(self.x)
                 self.function_vals.append(tempval)
-                return tempval, None
+                return tempval, self.function_vals, False, self.num_queries
             else:
-                return None, None
-           
+                return None, None, False, None
 
-       
+
 # _____________________________________________
+
 """
 WEEK 6 - task #5.
 """
@@ -558,8 +559,3 @@ Show Daniel Algorithm #2. It sounds promising based off the title:
 '''
 This is Daniel's paper! Is ZORO something we can use / have used?
 '''
-
-
-
-
-

@@ -36,9 +36,11 @@ class STPOptimizer(BaseOptimizer):
         self.a_k = a_k
         self.defined_func = defined_func
         self.function_budget = function_budget
-        self.f_vals = []
+
         self.list_of_sk = []
         self.x_0 = x_0
+        # print('x0: ', self.x_0)
+        self.f_vals = [defined_func(x_0)]
         # must be a comparison oracle.
         self.oracle = oracle
 
@@ -145,6 +147,7 @@ class STPOptimizer(BaseOptimizer):
             # *********
             # call the UTILS function.
             output = random_sampling_directions(1, n, 'rademacher')
+            # print('RADEMACHER output: ', output)
             s_k = output
             # *********
         else:

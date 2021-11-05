@@ -28,13 +28,37 @@ x0 = np.random.randn(n_def)
 step_size = 0.2
 r = 0.1
 # max_iters = int(2e4)
-max_iters = int(10000)
+# max_iters = int(10000)
 
 # Define the comparison oracle.
 oracle = Oracle(obj_func_1)
 
 Opt = SignOPT(oracle, function_budget, x0, m, step_size, r, debug=False, function=obj_func_1)
+# step.
+termination = False
+i = 0
+while termination is False:
+    # optimization step.
+    solution, func_value, termination, queries = Opt.step()
+    # print('step')
+    print('current value at ' + str(i) + ': ', func_value[-1])
+# plot the decreasing function.
+plt.plot(func_value)
+plt.show()
+plt.close()
+# log x-axis.
+plt.semilogy(func_value)
+plt.show()
+plt.close()
 
+print('number of values: ', len(func_value))
+print('number of oracle queries: ', queries)
+# ---------
+
+
+
+
+'''
 for i in range(max_iters - 1):
     print(i)
     Opt.step()
@@ -43,4 +67,5 @@ plt.semilogy(Opt.f_vals)
 plt.show()
 
 print('number of function vals: ', len(Opt.f_vals))
+'''
 
